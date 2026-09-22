@@ -20,6 +20,7 @@ from ..config import FRAMES_DIR, MVS_IMPORT_DIR
 PIXEL_TYPE_MONO8 = 0x01080001
 PIXEL_TYPE_RGB8 = 0x02180014
 PIXEL_TYPE_BGR8 = 0x02180015
+PIXEL_TYPE_YUV422_YUYV = 0x02100032
 PIXEL_TYPE_BAYER_RG8 = 0x01080009
 PIXEL_TYPE_BAYER_RG10 = 0x01100010
 PIXEL_TYPE_BAYER_RG12 = 0x01100012
@@ -425,6 +426,9 @@ def _decode_frame(buffer: np.ndarray, width: int, height: int, pixel_type: int) 
         return cv2.cvtColor(raw, cv2.COLOR_RGB2BGR)
     if pixel_type == PIXEL_TYPE_BGR8:
         return buffer[: width * height * 3].reshape(height, width, 3).copy()
+    if pixel_type == PIXEL_TYPE_YUV422_YUYV:
+        raw = buffer[: width * height * 2].reshape(height, width, 2)
+        return cv2.cvtColor(raw, cv2.COLOR_YUV2BGR_YUY2)
     if pixel_type in {PIXEL_TYPE_BAYER_RG8, PIXEL_TYPE_BAYER_GB8}:
         raw = buffer[: width * height].reshape(height, width)
         code = cv2.COLOR_BayerRG2BGR if pixel_type == PIXEL_TYPE_BAYER_RG8 else cv2.COLOR_BayerGB2BGR
