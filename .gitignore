@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# WorkBuddy agent workspace (local notes)
+.workbuddy/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -27,7 +30,10 @@ data
 src-tauri/target
 src-tauri/build-python
 src-tauri/pyinstaller-build
-src-tauri/resources
+# resources/ 是 PyInstaller 输出目录（整目录忽略），
+# 但 WebView2Loader.dll 必须随 NSIS 安装包一起分发，单独放行。
+src-tauri/resources/*
+!src-tauri/resources/WebView2Loader.dll
 src-tauri/digivision-backend.spec
 *.pyc
 __pycache__/
