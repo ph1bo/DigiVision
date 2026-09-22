@@ -1,0 +1,4 @@
+{
+  "method": "dark-region-threshold",
+  "note": "Demo only. Replace infer.py and weights for production models."
+}

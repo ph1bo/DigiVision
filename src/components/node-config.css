@@ -1,0 +1,171 @@
+.nc-overlay, .nc-overlay * { box-sizing: border-box; }
+/* MasterGo：1200×880，设置区 448，预览区 752；舞台 1920×1080。 */
+.node-config-overlay.nc-overlay { position: absolute; inset: -52px 0 0; z-index: 150; background: rgb(0 0 0 / 72%); }
+.nc-overlay .nc-dialog { position: absolute; left: 50%; top: calc(50% - 22px); transform: translate(-50%, -50%); width: 1200px; height: 880px; display: flex; flex-direction: column; overflow: hidden; border: 0; border-radius: 6px; background: #1c1c20; color: #eaebef; box-shadow: 0 18px 48px rgb(0 0 0 / 42%); outline: none; }
+/* 遮罩覆盖工具栏与工作区，保留 44px 原生窗口操作区域。 */
+.nc-overlay .nc-dialog.nc-compact { width: 960px; height: auto; max-height: 880px; }
+.nc-overlay .node-config-header { height: 64px; flex: 0 0 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: #29292e; }
+.nc-overlay .node-config-title { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 500; }
+.nc-overlay .node-config-title > span:last-child { max-width: 1050px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nc-overlay .node-config-art { width: 24px; height: 24px; display: grid; place-items: center; }
+.nc-overlay .node-config-art img { width: 16px; height: 16px; }
+.nc-overlay .node-config-close { width: 24px; height: 24px; padding: 2px; border: 0; background: transparent; cursor: pointer; }
+.nc-overlay .node-config-close img { width: 20px; height: 20px; }
+.nc-overlay .node-config-main { display: flex; flex: 1; min-height: 0; height: auto; }
+.nc-overlay .nc-settings { display: block; width: 448px; flex: 0 0 448px; min-width: 0; min-height: 0; margin: 0; padding: 0 16px 24px; border: 0; overflow: auto; scrollbar-width: thin; scrollbar-color: #45454e transparent; background: #1c1c20; }
+.nc-overlay .nc-compact .node-config-main { height: auto; flex: 1 1 auto; min-height: 176px; overflow: auto; }
+.nc-overlay .nc-compact .nc-settings { width: 100%; flex: 1; padding: 0 48px 24px; overflow: auto; }
+.nc-overlay .nc-preview { position: relative; flex: 1; width: 752px; height: 752px; display: grid; place-items: center; overflow: hidden; background-color: #18191d; background-image: conic-gradient(#18191d 25%, #252529 0 50%, #18191d 0 75%, #252529 0); background-size: 32px 32px; }
+.nc-overlay .nc-preview img { position: static; width: auto; height: auto; max-width: calc(100% - 64px); max-height: calc(100% - 64px); object-fit: contain; border: 1px solid rgb(255 255 255 / 16%); background: #111216; }
+.nc-overlay .nc-preview-empty { display: flex; flex-direction: column; align-items: center; gap: 12px; color: #b7b9c2; font-size: 16px; }
+.nc-overlay .nc-preview-empty small { color: #8a8c96; font-size: 13px; }
+.nc-overlay .nc-footer { height: 64px; flex: 0 0 64px; display: flex; align-items: center; gap: 12px; padding: 0 16px; background: #1c1c20; }
+.nc-overlay .nc-footer button { flex: none; width: auto; min-width: 60px; height: 32px; padding: 0 12px; border: 1px solid rgb(82 85 94 / 70%); border-radius: 8px; background: #2a2b2f; color: #fff; font-size: 14px; cursor: pointer; }
+.nc-overlay .nc-footer button.primary { background: #6c63f3; border-color: #6c63f3; }
+.nc-overlay .nc-feedback { flex: 1; min-width: 0; max-height: 52px; overflow: auto; color: #b7b9c2; font-size: 13px; line-height: 20px; }
+.nc-overlay .nc-feedback[role="alert"], .nc-overlay .nc-invalid-ref { color: #ff9994; }
+.nc-overlay button:disabled { opacity: .45; cursor: default; }
+.nc-overlay :is(button, input, select):focus-visible { outline: 2px solid #a299ef; outline-offset: 2px; }
+.nc-overlay :is(input, select) { min-width: 0; max-width: 100%; width: 100%; height: 40px; padding: 0 12px; border: 1px solid transparent; border-radius: 4px; background: #2c2c35; color: #eaebef; font: inherit; font-size: 14px; color-scheme: dark; }
+.nc-overlay input[type="checkbox"] { width: 16px; height: 16px; accent-color: #8881ea; }
+.nc-overlay input[type="color"] { padding: 4px; }
+.nc-overlay input[hidden] { display: none; }
+.nc-overlay input::placeholder { color: #8a8c96; }
+.nc-overlay .nc-field { display: flex; align-items: center; gap: 16px; margin: 16px 0; }
+.nc-overlay .nc-field > span { width: 84px; flex: none; color: #eaebef; font-size: 14px; line-height: 20px; }
+.nc-overlay .nc-field :is(input, select) { flex: 1; }
+.nc-overlay .nc-source-block { height: 52px; display: flex; align-items: center; }
+.nc-overlay .nc-source-head { display: flex; width: 100%; align-items: center; }
+.nc-overlay .nc-source-head > span { width: 84px; flex: none; font-size: 14px; }
+.nc-overlay .nc-source-tabs { display: flex; gap: 16px; }
+.nc-overlay .nc-source-tabs button { display: flex; align-items: center; gap: 6px; padding: 0; border: 0; background: transparent; color: #eaebef; font-size: 14px; white-space: nowrap; cursor: pointer; }
+.nc-overlay .nc-source-tabs i { width: 14px; height: 14px; border: 1px solid #8a8c96; border-radius: 50%; }
+.nc-overlay .nc-source-tabs button.active i { border-color: #8881ea; box-shadow: inset 0 0 0 3px #1c1c20; background: #8881ea; }
+.nc-overlay .nc-section { padding-top: 16px; }
+.nc-overlay h4 { margin: 0 0 16px; color: #eaebef; font-size: 14px; font-weight: 500; line-height: 20px; }
+.nc-overlay .nc-section-fields { padding-left: 100px; }
+.nc-overlay .nc-section-fields .nc-field { flex-direction: column; align-items: stretch; gap: 8px; }
+.nc-overlay .nc-section-fields .nc-field > span { width: auto; }
+.nc-overlay .nc-toggle { display: flex; align-items: center; gap: 8px; margin: 16px 0 12px; font-size: 14px; }
+.nc-overlay .nc-switch { width: 32px; height: 20px; flex: none; display: flex; align-items: center; padding: 2px; border: 0; border-radius: 20px; background: #53545c; cursor: pointer; }
+.nc-overlay .nc-switch i { width: 16px; height: 16px; border-radius: 50%; background: #fff; }
+.nc-overlay .nc-switch.on { background: #8881ea; justify-content: flex-end; }
+.nc-overlay .nc-path-line { display: flex; gap: 12px; }
+.nc-overlay .nc-path-line input { width: auto; flex: 1; min-width: 0; }
+.nc-overlay .nc-small-button, .nc-overlay .nc-table-actions button { height: 32px; align-self: center; padding: 0 12px; border: 1px solid rgb(255 255 255 / 12%); border-radius: 4px; background: #2a2b2f; color: #eaebef; white-space: nowrap; cursor: pointer; }
+.nc-overlay .nc-file-block { padding-top: 20px; }
+.nc-overlay .nc-file-head, .nc-overlay .nc-file-row { display: grid; grid-template-columns: 60px 1fr; align-items: center; height: 40px; padding: 0 10px; font-size: 14px; }
+.nc-overlay .nc-file-head { background: #303038; color: #8a8c96; }
+.nc-overlay .nc-file-list { max-height: 200px; overflow: auto; background: #242426; }
+.nc-overlay .nc-file-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nc-overlay .nc-empty { min-height: 80px; display: grid; place-items: center; color: #8a8c96; font-size: 13px; }
+.nc-overlay .nc-image-summary { display: flex; justify-content: space-between; gap: 12px; margin-top: 16px; color: #8a8c96; font-size: 14px; }
+.nc-overlay .nc-image-summary b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #eaebef; font-weight: 400; }
+.nc-overlay .nc-tabs { height: 44px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.nc-overlay .nc-tabs button { border: 0; border-bottom: 2px solid transparent; background: transparent; color: #eaebef; font-size: 14px; cursor: pointer; }
+.nc-overlay .nc-tabs button.active { border-bottom-color: #8881ea; color: #a299ef; }
+.nc-overlay .nc-model-info { margin-top: 20px; padding-top: 16px; border-top: 1px solid rgb(255 255 255 / 6%); }
+.nc-overlay .nc-model-info > div { height: 34px; display: flex; justify-content: space-between; align-items: center; gap: 12px; border-bottom: 1px solid rgb(255 255 255 / 5%); font-size: 13px; }
+.nc-overlay .nc-model-info span { color: #8a8c96; }
+.nc-overlay .nc-model-info b { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 400; }
+.nc-overlay .node-config-help { margin-top: 16px; color: #8a8c96; font-size: 13px; line-height: 1.6; }
+.nc-overlay .nc-value-field { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; min-width: 0; }
+.nc-overlay .nc-value-heading { display: flex; align-items: center; gap: 8px; color: #b7b9c2; font-size: 14px; }
+.nc-overlay .nc-value-heading select { width: 100px; height: 26px; margin-left: auto; padding: 0 4px; font-size: 12px; background: #24242b; color: #a299ef; }
+.nc-overlay .nc-reference-box { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; height: 40px; min-width: 0; padding: 0 12px; border-radius: 4px; background: #2c2c35; color: #b7b9c2; font-size: 14px; }
+.nc-overlay .nc-reference-box > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nc-overlay .nc-reference-box button { width: 24px; height: 24px; flex: none; padding: 2px; border: 0; background: transparent; cursor: pointer; }
+.nc-overlay .nc-reference-box img { width: 20px; height: 20px; }
+.nc-overlay .nc-element { padding: 16px 0; border-bottom: 1px solid rgb(255 255 255 / 8%); }
+.nc-overlay .nc-colors { display: flex; gap: 16px; }
+.nc-overlay .nc-colors .nc-field { flex: 1; gap: 8px; }
+.nc-overlay .nc-colors .nc-field > span { width: auto; }
+.nc-overlay .nc-table-actions { height: 48px; display: flex; justify-content: flex-end; align-items: center; }
+.nc-overlay .nc-branch-content { padding-top: 8px; }
+.nc-overlay .nc-branch-type { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.nc-overlay .nc-branch-type i { width: 14px; height: 14px; border-radius: 50%; background: #8881ea; box-shadow: inset 0 0 0 3px #1c1c20; }
+.nc-overlay .nc-branch-tip { display: flex; align-items: center; gap: 8px; color: #8a8c96; font-size: 14px; }
+.nc-overlay .nc-branch-tip > span { width: 20px; height: 20px; flex: none; display: grid; place-items: center; border: 1px solid #8a8c96; border-radius: 50%; }
+
+/* img 与 SVG 使用完全相同的 contain 区域，坐标采用原图天然像素。 */
+.nc-overlay .nc-image-layer { position: relative; width: calc(100% - 64px); height: calc(100% - 64px); }
+.nc-overlay .nc-image-layer img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; border: 0; background: transparent; object-fit: contain; }
+.nc-overlay .nc-section-fields .nc-field :is(input, select) { flex: none; min-height: 40px; }
+
+/* MasterGo 65:81358：推理显示设置区 448×296。 */
+.nc-overlay .nc-display-settings { width: 448px; height: 296px; margin-left: -16px; overflow: hidden; color: #eaebef; }
+.nc-overlay .nc-display-settings > h4 { height: 20px; margin: 0 0 16px; padding: 0 16px; color: #fff; font-size: 14px; font-weight: 500; line-height: 20px; }
+.nc-overlay .nc-display-tabs { display: grid; grid-template-columns: 1fr 1fr; width: 416px; height: 28px; margin: 0 16px 16px; overflow: hidden; border: 1px solid #565962; border-radius: 4px; }
+.nc-overlay .nc-display-tabs button { height: 26px; padding: 0; border: 0; background: transparent; color: #eaebef; font: inherit; font-size: 14px; line-height: 20px; cursor: pointer; }
+.nc-overlay .nc-display-tabs button:first-child { border-right: 1px solid #565962; }
+.nc-overlay .nc-display-tabs button[aria-selected="true"] { background: #35334f; color: #8881ea; box-shadow: inset 0 0 0 1px #8881ea; }
+.nc-overlay .nc-display-actions { display: flex; gap: 8px; width: 72px; height: 32px; margin: 0 16px 16px; }
+.nc-overlay .nc-display-actions button { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 8px; background: #2c2c35; cursor: pointer; }
+.nc-overlay .nc-display-actions img { width: 16px; height: 16px; }
+.nc-overlay .nc-display-actions button:disabled { opacity: .4; }
+.nc-overlay .nc-display-table { width: 416px; height: 168px; margin: 0 16px; overflow: hidden; background: #242426; }
+.nc-overlay .nc-display-table-head,
+.nc-overlay .nc-display-row { display: grid; grid-template-columns: 12px 40px 84px 116px 76px 76px 12px; width: 416px; padding: 0; align-items: center; }
+.nc-overlay .nc-display-table-head { height: 36px; background: #303038; color: rgb(255 255 255 / 52%); font-size: 14px; line-height: 20px; }
+.nc-overlay .nc-display-table-body { height: 132px; overflow: auto; scrollbar-width: thin; scrollbar-color: #45454e transparent; }
+.nc-overlay .nc-display-row { position: relative; height: 44px; border: 0; background: transparent; color: #fff; font-size: 14px; line-height: 20px; cursor: pointer; outline: none; }
+.nc-overlay .nc-display-row:hover { background: rgb(255 255 255 / 4%); }
+.nc-overlay .nc-display-row.selected { background: #2e2e35; }
+.nc-overlay .nc-display-row.selected::after { content: ''; position: absolute; inset: 0; border: 1.5px solid transparent; border-image: linear-gradient(96deg, #654dfa -1%, #d2e9fc 100%) 1; pointer-events: none; }
+.nc-overlay .nc-display-row > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #fff; font-size: 14px; }
+.nc-overlay .nc-display-row b { display: inline-block; max-width: 64px; padding: 2px 8px; overflow: hidden; border-radius: 4px; background: rgb(90 170 251 / 20%); color: #5aaafb; font-weight: 500; line-height: 20px; text-overflow: ellipsis; }
+.nc-overlay .nc-display-state { display: inline-flex; align-items: center; gap: 8px; }
+.nc-overlay .nc-display-state i { width: 6px; height: 6px; flex: none; border-radius: 50%; }
+.nc-overlay .nc-display-state.true { color: #27c346; }
+.nc-overlay .nc-display-state.true i { background: #27c346; box-shadow: 0 0 8px rgb(98 255 129 / 60%); }
+.nc-overlay .nc-display-state.false { color: #f76965; }
+.nc-overlay .nc-display-state.false i { background: #f76965; box-shadow: 0 0 8px rgb(247 105 101 / 60%); }
+.nc-overlay .nc-display-state.unknown { color: #8a8c96; }
+.nc-overlay .nc-display-state.unknown i { background: #565962; }
+.nc-overlay .nc-display-empty { height: 132px; display: grid; place-items: center; color: #8a8c96; font-size: 13px; }
+
+/* MasterGo 65:001910 / 65:016597：Region 与 Text 设置弹窗。 */
+.nc-item-overlay, .nc-item-overlay * { box-sizing: border-box; }
+.nc-item-overlay { position: fixed; inset: 0; z-index: 250; background: rgb(0 0 0 / 72%); color: #eaebef; font-family: "PingFang SC", "Microsoft YaHei", sans-serif; }
+.nc-item-dialog { position: absolute; left: 50%; top: 50%; width: 480px; display: flex; flex-direction: column; overflow: hidden; transform: translate(-50%, -50%); border-radius: 8px; background: #1c1c20; outline: none; box-shadow: 0 20px 56px rgb(0 0 0 / 42%); }
+.nc-item-dialog.is-region { height: 608px; }
+.nc-item-dialog.is-text { height: 500px; }
+.nc-item-header { height: 64px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; background: #29292e; color: #fff; font-size: 14px; line-height: 40px; }
+.nc-item-header button { display: grid; place-items: center; width: 20px; height: 20px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.nc-item-header img { width: 20px; height: 20px; opacity: .4; }
+.nc-item-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 16px; padding: 26px 16px; background: #1c1c20; }
+.nc-item-dialog.is-region .nc-item-body { padding-bottom: 38px; }
+.nc-item-field { position: relative; width: 448px; height: 40px; flex: none; display: grid; grid-template-columns: 84px 316px; align-items: center; gap: 16px; padding: 0 16px; }
+.nc-item-field > span:first-child { color: #eaebef; font-size: 14px; font-weight: 500; line-height: 20px; }
+.nc-item-control-pair { display: grid; grid-template-columns: 264px 40px; gap: 12px; width: 316px; height: 40px; }
+.nc-item-control { position: relative; display: flex; align-items: center; width: 264px; height: 40px; min-width: 0; padding: 0 12px; overflow: hidden; border-radius: 8px; background: #2c2c35; color: #eaebef; font-size: 14px; }
+.nc-item-control > span { min-width: 0; overflow: hidden; color: #565962; text-overflow: ellipsis; white-space: nowrap; }
+.nc-item-control.is-reference > span { color: #eaebef; }
+.nc-item-control input,
+.nc-item-control select { width: 100%; height: 40px; min-width: 0; padding: 0; border: 0; outline: 0; appearance: none; background: transparent; color: #eaebef; font: inherit; }
+.nc-item-control input::placeholder { color: #565962; }
+.nc-item-control select { padding-right: 24px; }
+.nc-item-chevron { position: absolute; right: 12px; width: 16px; height: 16px; pointer-events: none; }
+.nc-item-link { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 8px; background: #404069; cursor: pointer; }
+.nc-item-link img { width: 20px; height: 20px; }
+.nc-item-field > small { position: absolute; left: 116px; top: 41px; color: #f76965; font-size: 11px; }
+.nc-item-toggle-field { height: 24px; }
+.nc-item-toggle-field > button { position: relative; width: 42px; height: 24px; padding: 0; border: 0; border-radius: 12px; background: #565962; cursor: pointer; }
+.nc-item-toggle-field > button i { position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; }
+.nc-item-toggle-field > button.on { background: #8881ea; }
+.nc-item-toggle-field > button.on i { left: 21px; }
+.nc-item-color { position: relative; display: flex; align-items: center; width: 316px; height: 40px; padding: 0 12px; overflow: hidden; border-radius: 8px; background: #2c2c35; cursor: pointer; }
+.nc-item-color > i { width: 264px; height: 20px; border-radius: 4px; }
+.nc-item-color > img { position: absolute; right: 12px; width: 16px; height: 16px; }
+.nc-item-color > input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.nc-item-number { display: flex; width: 316px; height: 40px; padding: 0 12px; border-radius: 8px; background: #2c2c35; }
+.nc-item-number > input { width: 272px; height: 40px; padding: 0; border: 0; outline: 0; appearance: textfield; background: transparent; color: #eaebef; font: inherit; font-size: 14px; }
+.nc-item-number > input::-webkit-inner-spin-button { display: none; }
+.nc-item-number > span { width: 16px; height: 32px; margin-top: 4px; display: flex; flex-direction: column; }
+.nc-item-number button { display: grid; place-items: center; width: 16px; height: 16px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.nc-item-number button img { width: 16px; height: 16px; opacity: .5; }
+.nc-item-footer { height: 64px; flex: none; display: flex; align-items: center; justify-content: flex-end; gap: 16px; padding: 0 16px; background: #29292e; }
+.nc-item-footer > span { min-width: 0; flex: 1; overflow: hidden; color: #f76965; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.nc-item-footer button { width: 60px; height: 32px; padding: 0; border: 1px solid rgb(82 85 94 / 70%); border-radius: 8px; background: #2a2b2f; color: #eaebef; font: inherit; font-size: 14px; cursor: pointer; }
+.nc-item-footer button.primary { border-color: #6c63f3; background: #6c63f3; color: #fff; }
+.nc-item-dialog :is(button, input, select):focus-visible { outline: 1px solid #a299ef; outline-offset: -1px; }

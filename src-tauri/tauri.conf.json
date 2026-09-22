@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "DigiVision",
+  "version": "0.1.0",
+  "identifier": "com.digivision.demo",
+  "build": {
+    "beforeDevCommand": "npm run app:backend && npm run build",
+    "beforeBuildCommand": "npm run app:backend && npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Digi Vision",
+        "width": 1440,
+        "height": 810,
+        "minWidth": 1280,
+        "minHeight": 760,
+        "resizable": true,
+        "visible": false,
+        "fullscreen": false,
+        "decorations": false,
+        "dragDropEnabled": false,
+        "backgroundColor": "#31313b"
+      },
+      {
+        "label": "splashscreen",
+        "title": "DigiVision",
+        "url": "splash.html",
+        "width": 720,
+        "height": 430,
+        "resizable": false,
+        "fullscreen": false,
+        "decorations": false,
+        "center": true,
+        "alwaysOnTop": true,
+        "backgroundColor": "#171b24"
+      }
+    ],
+    "security": {
+      "csp": null
+    },
+    "withGlobalTauri": true
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [],
+    "resources": {
+      "resources/digivision-backend/": "backend/"
+    }
+  }
+}

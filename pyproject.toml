@@ -1,0 +1,21 @@
+[project]
+name = "digivision-demo"
+version = "0.1.0"
+description = "DigiVision 工业视觉检测 Demo"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.116.1",
+  "uvicorn[standard]>=0.35.0",
+  "python-multipart>=0.0.20",
+  "opencv-python-headless>=4.12.0.88",
+  "numpy>=2.2.6",
+  "onnxruntime>=1.22.0; sys_platform != 'win32'",
+  "onnxruntime-gpu>=1.22.0; sys_platform == 'win32'",
+  "pillow>=11.2.1"
+]
+
+[project.optional-dependencies]
+desktop = ["pyinstaller>=6.16,<7"]
+
+[tool.uv]
+package = false

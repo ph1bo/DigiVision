@@ -1,0 +1,44 @@
+{
+  "name": "digivision-demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "test:workflow": "tsc -p tsconfig.tests.json && node --test node_modules/.tmp/workflow-tests/tests/workflow.test.js",
+    "test:splash": "node --test tests/splash-logic.test.mjs",
+    "preview": "vite preview",
+    "dev:web": "vite",
+    "dev:backend": "uv run uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload",
+    "dev:all": "concurrently -n backend,web -c blue,green \"npm:dev:backend\" \"npm:dev:web\"",
+    "sample:model": "uv run python scripts/build_sample_model.py",
+    "start": "uv run uvicorn backend.main:app --host 127.0.0.1 --port 8000",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "app:build": "uv run --no-project --python 3.11 python scripts/build_app.py",
+    "app:backend": "uv run --no-project --python 3.11 python scripts/build_app.py --backend-only",
+    "test:config": "node --test tests/node-config.test.mjs tests/variable-reference.test.mjs tests/annotation-rendering.test.mjs"
+  },
+  "dependencies": {
+    "@icon-park/react": "^1.4.2",
+    "clsx": "^2.1.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.4"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.5",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "concurrently": "^10.0.5",
+    "jsdom": "^26.1.0",
+    "oxlint": "^1.81.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0"
+  }
+}

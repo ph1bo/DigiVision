@@ -1,0 +1,1 @@
+{"main-window":{"identifier":"main-window","description":"桌面主窗口事件权限","local":true,"windows":["main","splashscreen"],"permissions":["core:default","core:window:allow-start-dragging"]}}

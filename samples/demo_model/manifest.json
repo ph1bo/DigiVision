@@ -1,0 +1,23 @@
+{
+  "manifestVersion": 2,
+  "modelId": "digivision-demo-defect",
+  "name": "DigiVision 表面缺陷演示模型",
+  "version": "1.0.0",
+  "description": "基于 OpenCV 的演示模型包，用于验证模型导入、服务启停、变量展开和流程推理链路。",
+  "tasks": [
+    {
+      "key": "detection",
+      "type": "detection",
+      "name": "检测",
+      "labels": [
+        { "label": "defect", "name": "缺陷" }
+      ]
+    }
+  ],
+  "script": "infer.py",
+  "weights": ["weights/demo-config.json"],
+  "params": [
+    { "name": "threshold", "label": "阈值", "type": "int", "default": 80, "min": 1, "max": 255 },
+    { "name": "minArea", "label": "最小区域面积", "type": "int", "default": 120, "min": 1 }
+  ]
+}

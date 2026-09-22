@@ -1,0 +1,17 @@
+.annotation-overlay-root { position:absolute; inset:0; z-index:1; overflow:hidden; pointer-events:none; }
+.annotation-vector-layer, .annotation-label-layer { position:absolute; overflow:visible; pointer-events:none; }
+.annotation-label-layer { color:#fff; }
+.annotation-text-layer { position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+.annotation-overlay-text { position:absolute; display:block; box-sizing:border-box; margin:0; padding:6px 12px; color:#fff; font-weight:500; line-height:1.2; white-space:pre; transform:none; }
+.annotation-region-label { position:absolute; display:block; min-height:20px; padding:1px 5px; border-radius:2px 2px 2px 0; color:#fff; font-size:14px; font-weight:500; line-height:18px; white-space:nowrap; transform:translateY(-100%); text-shadow:0 1px 2px rgb(0 0 0 / 45%); }
+.annotation-region-label.inside { transform:none; }
+.flow-actions-menu { display:flex; gap:8px; padding:8px; background:#292b30; }
+.flow-actions-menu button { color:#c9ccd4; font-size:12px; }
+.app-menu-item { position:relative; }
+.app-menu-dropdown { position:absolute; z-index:110; top:30px; left:0; min-width:170px; padding:6px; background:#303137; border:1px solid #45464d; border-radius:4px; box-shadow:0 8px 24px #0006; }
+.app-menu-dropdown button { display:block; width:100%; padding:8px 10px; text-align:left; white-space:nowrap; }
+.mg-cell-input { min-width:0; width:100%; color:inherit; background:transparent; border:1px solid transparent; outline:none; padding:4px 0; font:inherit; }
+.mg-cell-input:focus { border-color:#654dfa; }
+button:disabled { cursor:default; opacity:.45; }
+
+.image-tile img { object-fit:contain; }
