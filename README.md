@@ -32,7 +32,13 @@ macOS Apple Silicon 生成 `.app` 和 DMG。Windows x64 必须在 Windows 构建
 Windows 构建机可执行：
 
 ```powershell
-.\scripts\build_windows.ps1
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_windows.ps1
+```
+
+也可以直接双击或在命令提示符执行：
+
+```bat
+.\scripts\build_windows.cmd
 ```
 
 构建机需要安装 Python 3.11、`uv`、Node.js 和 Rust/Tauri 构建依赖。真实海康相机验证还需要在 Windows 上单独安装官方 MVS SDK。
