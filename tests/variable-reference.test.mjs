@@ -20,6 +20,7 @@ vm.runInNewContext(compiled, { exports: module.exports, module, window, document
   if (id === '../api') return { api: {} }
   if (id === '../icon-assets') return { iconAssets: { flow: {} }, iconSizes: { flow: {} } }
   if (id === './AnnotationOverlay') return { AnnotationOverlay: () => null }
+  if (id === './DesignSelect') return { DesignSelect: ({ value, options, onChange, 'ariaLabel': ariaLabel }) => React.createElement('select', { value, 'aria-label': ariaLabel, onChange: event => onChange(event.target.value) }, options.map(option => React.createElement('option', { key: option.value, value: option.value, disabled: option.disabled }, option.label))) }
   if (/\.(svg|css)$/.test(id)) return id
   return require(id)
 }})

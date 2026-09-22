@@ -487,9 +487,10 @@ button:disabled { opacity: .38; cursor: not-allowed !important; }
   gap: 16px;
 }
 .management-dialog-footer button {
-  width: 60px;
+  width: auto;
+  min-width: 60px;
   height: 32px;
-  padding: 0;
+  padding: 0 16px;
   border: 1px solid rgba(82, 85, 94, .7);
   border-radius: 8px;
   background: #2A2B2F;
@@ -586,6 +587,71 @@ button:disabled { opacity: .38; cursor: not-allowed !important; }
   width: 16px;
   height: 16px;
   pointer-events: none;
+}
+.design-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: inherit;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.design-select-trigger > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.design-select-trigger > img { width: 16px; height: 16px; flex: none; margin-left: 12px; transition: transform .16s ease; }
+.design-select-trigger.is-open > img { transform: rotate(180deg); }
+.design-select-trigger:focus-visible { outline: 1px solid #a299ef; outline-offset: -1px; }
+.design-select-trigger:disabled { color: rgba(255,255,255,.4); cursor: wait; }
+.design-select-menu {
+  position: fixed;
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid #454752;
+  border-radius: 4px;
+  background: #24252b;
+  box-shadow: 0 12px 28px rgba(0,0,0,.46);
+  scrollbar-width: thin;
+  scrollbar-color: #565963 transparent;
+}
+.design-select-menu button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 28px 0 10px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: #eaebef;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: left;
+  cursor: pointer;
+}
+.design-select-menu button > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.design-select-menu button:hover,
+.design-select-menu button.focused { background: rgba(136,129,234,.16); color: #fff; }
+.design-select-menu button.selected { color: #b3aaff; }
+.design-select-menu button:disabled { color: #656873; cursor: not-allowed; }
+.design-select-menu button > i {
+  position: absolute;
+  right: 10px;
+  width: 7px;
+  height: 4px;
+  border-bottom: 1.5px solid currentColor;
+  border-left: 1.5px solid currentColor;
+  transform: rotate(-45deg) translateY(-1px);
 }
 .camera-add-button {
   position: absolute;
@@ -1029,6 +1095,12 @@ button:disabled { opacity: .38; cursor: not-allowed !important; }
 }
 .nc-camera-select { padding-left: 40px; }
 .nc-camera-select > img:first-child { position: absolute; left: 12px; top: 12px; width: 16px; height: 16px; }
+.mg-select .design-select-trigger { padding: 0 12px; }
+.mg-select .design-select-trigger > img { position: static; width: 16px; height: 16px; margin-left: 12px; }
+.main-layout .panel-header.compact > div { align-items: center; gap: 4px; }
+.main-layout .panel-header.compact button { display: inline-grid; place-items: center; width: 20px; height: 20px; padding: 0; }
+.main-layout .panel-header.compact button svg { width: 14px; height: 14px; }
+.module-panel .module-group-title svg { width: 14px; height: 14px; }
 .nc-switch-line { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: #EAEBEF; font-size: 14px; }
 .nc-switch {
   width: 36px;
@@ -1745,3 +1817,155 @@ button:disabled { opacity: .38; cursor: not-allowed !important; }
 .step-list.has-drop-target::after { display: none; }
 .module-panel .module-card:active { cursor: grabbing; }
 .step-empty { padding: 16px 10px; color: rgba(255,255,255,.32); font-size: 11px; text-align: center; }
+
+/* ============================================================
+   MasterGo 视觉自查修正：仅调整展示尺寸，不改交互逻辑。
+   来源：主页 62:61630、相机 31:46470、模型 31:39023。
+   ============================================================ */
+.app-menu button { font-size: 12px; }
+.top-actions button { width: 20px; height: 20px; padding: 0; }
+.app-toolbar { background: #25252A; }
+.main-layout .panel-header { padding: 0 16px; }
+.main-layout .panel-header.compact button { width: 16px; height: 16px; }
+.main-layout .panel-header.compact button svg { width: 16px; height: 16px; }
+.flow-list-panel .flow-row { font-size: 12px; }
+
+.output-panel .output-head,
+.output-panel .output-row {
+  height: 40px;
+  grid-template-columns: 100px minmax(0, 1fr);
+  padding: 0 10px;
+  font-size: 14px;
+  line-height: 20px;
+}
+.output-panel .output-head { color: rgba(255, 255, 255, .52); }
+.output-panel .output-row span,
+.output-panel .output-row b { color: #FFFFFF; }
+
+.log-panel .log-head,
+.log-panel .log-row {
+  height: 40px;
+  grid-template-columns: 171px 113px 173px minmax(0, 1fr);
+  padding: 0 36px 0 36px;
+  font-size: 14px;
+  line-height: 20px;
+}
+.log-panel .log-head {
+  background: rgba(59, 59, 67, .36);
+  color: rgba(255, 255, 255, .52);
+}
+.log-panel .log-row span { color: #FFFFFF; }
+.log-panel .log-row .level-info,
+.log-panel .log-row .level-warn,
+.log-panel .log-row .level-error {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 49px;
+  height: 24px;
+  padding: 0;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, .16);
+  font-size: 14px;
+  line-height: 24px;
+}
+.log-panel .log-row .level-info { color: #FFFFFF !important; }
+.log-panel .log-row .level-warn { color: #FF9E4E !important; }
+.log-panel .log-row .level-error { color: #FF4E4E !important; }
+
+/* 模型管理标题图标按稿为 20×20。 */
+.management-model-dialog .management-dialog-title img { width: 20px; height: 20px; }
+
+/* 相机管理：1440×880 弹窗、40 标题栏、28 输入/选择器、94×28 添加按钮。 */
+.management-camera-dialog { width: 1440px; }
+.management-camera-dialog .management-dialog-header {
+  height: 40px;
+  flex: 0 0 40px;
+  background: #3B3B43;
+}
+.management-camera-dialog .management-dialog-title { font-size: 14px; line-height: 24px; }
+.management-camera-dialog .management-dialog-title img { width: 20px; height: 20px; }
+.management-camera-dialog .management-dialog-close { width: 16px; height: 16px; }
+.management-camera-dialog .management-dialog-close img { width: 16px; height: 16px; }
+.management-camera-main { height: 776px; gap: 4px; }
+.management-camera-left { width: 570px; border-right: 0; }
+.camera-preview-screen { width: 858px; height: 776px; }
+.camera-device-info {
+  height: 174px;
+  padding: 0;
+  border-bottom: 0;
+}
+.camera-device-info h3 {
+  height: 36px;
+  margin: 0;
+  padding: 0 16px;
+  background: #3B3B43;
+  font-size: 14px;
+  line-height: 36px;
+}
+.camera-device-form { width: 433px; margin-top: 12px; }
+.camera-device-form > label { width: 327px; height: 28px; gap: 0; margin-bottom: 12px; }
+.camera-device-form > label > span { width: 71px; color: rgba(255, 255, 255, .8); font-size: 14px; line-height: 20px; }
+.camera-device-form input,
+.mg-select {
+  width: 256px;
+  height: 28px;
+  border: 1px solid #33353C;
+  border-radius: 4px;
+  background: #212328;
+  font-size: 14px;
+  line-height: 20px;
+}
+.camera-device-form input {
+  padding: 0 12px;
+  color: #4E525E;
+  background: #2A2C34;
+}
+.mg-select select { padding: 0 40px 0 12px; font-size: 14px; line-height: 20px; }
+.mg-select img { right: 12px; top: 6px; width: 16px; height: 16px; }
+.camera-add-button {
+  left: 339px;
+  top: 80px;
+  width: 94px;
+  height: 28px;
+  border: 1px solid #52555E;
+  border-radius: 4px;
+  background: #1E1F25;
+  color: #FFFFFF;
+  font-size: 14px;
+  line-height: 20px;
+}
+.camera-list-section { display: flex; flex-direction: column; padding: 0 16px; }
+.camera-list-section h3 {
+  height: 36px;
+  margin: 0;
+  padding: 0 16px;
+  background: #3B3B43;
+  font-size: 14px;
+  line-height: 36px;
+}
+.camera-list-section .mg-table { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+.camera-management-table .mg-table-body { height: auto; flex: 1; min-height: 0; }
+.camera-management-table .mg-table-head { font-size: 14px; line-height: 20px; }
+
+/* 文件目录列表头操作按钮按设置弹窗组件规范补齐。 */
+.nc-list-title { display: flex; align-items: center; gap: 12px; margin: 16px 0 8px; }
+.nc-list-title h4 { margin: 0; color: #EAEBEF; font-size: 14px; line-height: 20px; font-weight: 500; }
+.nc-list-title .nc-small-button { height: 28px; min-width: 52px; padding: 0 12px; border-color: #52555E; border-radius: 8px; background: #1E1F25; color: #EAEBEF; font-size: 14px; line-height: 20px; }
+.nc-small-button { height: 32px; min-width: 60px; padding: 0 16px; border: 1px solid #52555E; border-radius: 8px; background: #1E1F25; color: #EAEBEF; font-size: 14px; line-height: 20px; }
+
+/* 相机列表按稿收口为 570 宽、16 边距。 */
+.camera-list-section { padding: 0; }
+.camera-management-table { width: 570px; }
+.camera-management-table .mg-table-head,
+.camera-management-table .mg-table-row {
+  grid-template-columns: 108px 120px 80px 160px 70px;
+  padding: 0 16px;
+}
+
+/* 主页模块卡与节点标题图标按稿收口。 */
+.module-panel .module-card { height: 102px; min-height: 102px; }
+.node-config-art img { width: 20px; height: 20px; }
+
+/* 变量引用标题与其他设置弹窗标题保持一致。 */
+.vr-header span { font-size: 18px; line-height: 26px; font-weight: 500; }

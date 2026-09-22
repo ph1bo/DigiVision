@@ -1,10 +1,23 @@
-import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import variableCloseIcon from '../assets/mastergo/variable-close.svg'
 import './variable-reference.css'
 import { api } from '../api'
 import closeIcon from '../assets/mastergo/close.svg'
+import captureCameraIcon from '../assets/mastergo/capture-camera.svg'
+import captureDeleteIcon from '../assets/mastergo/capture-delete.svg'
+import captureFlipHorizontalIcon from '../assets/mastergo/capture-flip-horizontal.svg'
+import captureFlipVerticalIcon from '../assets/mastergo/capture-flip-vertical.svg'
+import captureFolderIcon from '../assets/mastergo/capture-folder.svg'
+import captureImageIcon from '../assets/mastergo/capture-image.svg'
+import captureMoveUpIcon from '../assets/mastergo/capture-move-up.svg'
+import captureRadioCheckedIcon from '../assets/mastergo/capture-radio-checked.svg'
+import captureRadioUncheckedIcon from '../assets/mastergo/capture-radio-unchecked.svg'
+import captureRotate180Icon from '../assets/mastergo/capture-rotate-180.svg'
+import captureRotateLeftIcon from '../assets/mastergo/capture-rotate-left.svg'
+import captureRotateRightIcon from '../assets/mastergo/capture-rotate-right.svg'
+import captureSortIcon from '../assets/mastergo/capture-sort.svg'
 import linkIcon from '../assets/mastergo/link.svg'
 import displayAddIcon from '../assets/mastergo/display-add.svg'
 import displayRemoveIcon from '../assets/mastergo/display-remove.svg'
@@ -14,6 +27,7 @@ import displayChevronDownIcon from '../assets/mastergo/display-chevron-down.svg'
 import displayChevronUpIcon from '../assets/mastergo/display-chevron-up.svg'
 import { iconAssets, iconSizes } from '../icon-assets'
 import { AnnotationOverlay } from './AnnotationOverlay'
+import { DesignSelect } from './DesignSelect'
 import type { Camera, ModelPackage, NodeType, WorkflowNode } from '../types'
 import './node-config.css'
 
@@ -26,6 +40,8 @@ export interface NodeDebugResult {
   imageUrl?: string
   annotations?: Array<Record<string, any>>
   outputs?: Record<string, unknown>
+  status?: string
+  durationMs?: number
 }
 
 export interface NodeConfigDialogProps {
@@ -111,10 +127,11 @@ function NodeConfigSession({ node, nodes, models, cameras, preview, onClose, onP
   const [failedPreview, setFailedPreview] = useState<string | null>(null)
   const [previewAnnotations, setPreviewAnnotations] = useState<Params[]>([])
   const [notice, setNotice] = useState('')
-  const [playing, setPlaying] = useState(false)
-  const [playIndex, setPlayIndex] = useState(0)
+  const [debugDurationMs, setDebugDurationMs] = useState<number | null>(null)
+  const [debugSucceeded, setDebugSucceeded] = useState(false)
   const alive = useRef(true)
   const locked = useRef(false)
+  const localPreviewUrl = useRef<string | null>(null)
   const formRef = useRef<HTMLFormElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const type = node.data.nodeType
@@ -126,10 +143,12 @@ function NodeConfigSession({ node, nodes, models, cameras, preview, onClose, onP
     // 已提交的持久化请求不可撤回；保存期间不允许取消，避免“取消但已保存”。
     if (locked.current && busy === '保存') return
     alive.current = false
-    setPlaying(false)
     onClose()
   }
-  useEffect(() => { alive.current = true; return () => { alive.current = false } }, [])
+  useEffect(() => { alive.current = true; return () => {
+    alive.current = false
+    if (localPreviewUrl.current) URL.revokeObjectURL(localPreviewUrl.current)
+  } }, [])
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null
     formRef.current?.focus()
@@ -138,14 +157,14 @@ function NodeConfigSession({ node, nodes, models, cameras, preview, onClose, onP
 
   const patch = (changes: Params) => {
     setDraft(current => ({ ...current, ...changes }))
-    setError(''); setNotice(''); setDebugPreview(null); setPreviewAnnotations([]); setFailedPreview(null); setPlaying(false); setPlayIndex(0)
+    setError(''); setNotice(''); setDebugPreview(null); setPreviewAnnotations([]); setFailedPreview(null); setDebugDurationMs(null); setDebugSucceeded(false)
   }
   const perform = async (name: string, action: () => Promise<void>) => {
     if (locked.current) return
     locked.current = true
     setBusy(name); setError(''); setNotice('')
     try { await action() } catch (reason) {
-      if (alive.current) { setError(messageOf(reason)); setPlaying(false) }
+      if (alive.current) setError(messageOf(reason))
     } finally {
       if (alive.current) { locked.current = false; setBusy('') }
     }
@@ -165,32 +184,20 @@ function NodeConfigSession({ node, nodes, models, cameras, preview, onClose, onP
     })
   }
   const debug = (params: Params = draft) => {
-    if (!onDebug || !validate()) { setPlaying(false); return }
+    if (!onDebug || !validate()) return
     setDebugPreview(null); setPreviewAnnotations([]); setFailedPreview(null)
     void perform('调试', async () => {
       const result = await onDebug(structuredClone(params))
       if (!alive.current) return
       setDebugPreview(result.imageUrl || null)
       setPreviewAnnotations(result.imageUrl ? rowsOf(result.annotations) : [])
+      setDebugDurationMs(Number.isFinite(result.durationMs) ? Number(result.durationMs) : null)
+      setDebugSucceeded(result.status !== 'error')
       setNotice(result.imageUrl ? '调试完成' : '调试完成，未返回预览图像')
     })
   }
-  const playbackStep = useEffectEvent(() => {
-    const files = rowsOf(draft.dir?.files).filter(file => file.selected !== false)
-    if (!files.length || (playIndex >= files.length && !draft.dir?.loop)) { setPlaying(false); return }
-    const index = playIndex % files.length
-    // 单次 debug 的执行上下文独立，预览播放由组件明确选择当前文件。
-    debug({ ...draft, source: 'file', file: { ...draft.file, path: files[index].path } })
-    setPlayIndex(index + 1)
-  })
-  useEffect(() => {
-    if (!playing || busy) return
-    const timer = window.setTimeout(() => playbackStep(), playIndex === 0 ? 0 : Math.max(16, Number(draft.dir.intervalUs) / 1000))
-    return () => window.clearTimeout(timer)
-  }, [playing, busy, playIndex, draft])
-
   return <div className="node-config-overlay nc-overlay" onMouseDown={event => { if (event.target === event.currentTarget) close() }}>
-    <form ref={formRef} tabIndex={-1} className={`node-config-dialog nc-dialog ${compact ? 'nc-compact' : ''} ${branch ? 'is-branch' : ''}`} role="dialog" aria-modal="true" aria-label={`${node.data.label}配置`} onSubmit={event => { event.preventDefault(); save() }} onKeyDown={event => {
+    <form ref={formRef} tabIndex={-1} className={`node-config-dialog nc-dialog ${compact ? 'nc-compact' : ''} ${branch ? 'is-branch' : ''} ${type === 'capture' ? 'is-capture-dialog' : ''}`} role="dialog" aria-modal="true" aria-label={`${node.data.label}配置`} onSubmit={event => { event.preventDefault(); save() }} onKeyDown={event => {
       if (event.key === 'Escape') { event.preventDefault(); close() }
       if (event.key === 'Tab') {
         const items = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled):not([hidden]), select:not(:disabled), textarea:not(:disabled)')).filter(item => item.offsetParent !== null)
@@ -201,14 +208,19 @@ function NodeConfigSession({ node, nodes, models, cameras, preview, onClose, onP
     }}>
       <header className="node-config-header"><div className="node-config-title"><span className="node-config-art">{stepIcon(type)}</span><span>{label || node.data.label}</span></div><button type="button" className="node-config-close" onClick={close} disabled={busy === '保存'} aria-label="关闭配置"><img src={closeIcon} alt="" /></button></header>
       <div className="node-config-main">
-        <fieldset className="node-config-settings nc-settings" disabled={!!busy || playing}>
-          <Field label="节点名称"><input aria-label="节点名称" value={label} required onChange={event => setLabel(event.target.value)} /></Field>
+        <fieldset className={`node-config-settings nc-settings ${type === 'capture' ? 'nc-capture-settings' : ''}`} disabled={!!busy}>
+          {type !== 'capture' && <Field label="节点名称"><input aria-label="节点名称" value={label} required onChange={event => setLabel(event.target.value)} /></Field>}
           {type === 'capture' && <CaptureSettings draft={draft} patch={patch} cameras={cameras} variables={variables} fileRef={fileRef} onUpload={file => {
             if (!file) return
             void perform('上传', async () => {
               const form = new FormData(); form.append('file', file)
-              const result = await api.post<{ path: string; name: string }>('/files/upload', form)
-              if (alive.current) patch({ file: { path: result.path, name: result.name } })
+              const result = await api.post<{ path: string; name: string; width?: number; height?: number; size?: number; format?: string; bitDepth?: string }>('/files/upload', form)
+              if (alive.current) {
+                patch({ file: { path: result.path, name: result.name, width: result.width, height: result.height, size: result.size ?? file.size, format: result.format || file.name.split('.').pop()?.toUpperCase(), bitDepth: result.bitDepth || '24-bit RGB' } })
+                if (localPreviewUrl.current) URL.revokeObjectURL(localPreviewUrl.current)
+                localPreviewUrl.current = URL.createObjectURL(file)
+                setDebugPreview(localPreviewUrl.current)
+              }
               if (fileRef.current) fileRef.current.value = ''
             })
           }} onScan={() => {
@@ -217,20 +229,20 @@ function NodeConfigSession({ node, nodes, models, cameras, preview, onClose, onP
               const result = await api.post<{ files: Params[] }>('/files/scan', { path: draft.dir.path })
               if (alive.current) patch({ dir: { ...draft.dir, files: result.files.map(file => ({ ...file, selected: draft.dir.files.find((old: Params) => old.path === file.path)?.selected ?? true })) } })
             })
-          }} />}
+          }} onPreviewFile={path => debug({ ...draft, source: 'file', file: { ...draft.file, path } })} />}
           {type === 'model' && <ModelSettings draft={draft} patch={patch} models={models} variables={variables} />}
           {type === 'display' && <DisplaySettings draft={draft} patch={patch} variables={variables} />}
           {branch && <div className="nc-branch-content"><div className="nc-branch-type"><i />Bool 条件</div>{draft.conditions.map((condition: Params, index: number) => <ValueField key={condition.id || index} label={draft.conditions.length > 1 ? `条件 ${index + 1}` : '条件值'} kind="Bool" value={condition.value} variables={variables} onChange={value => patch({ conditions: draft.conditions.map((row: Params, i: number) => i === index ? { ...row, value } : row) })} />)}<div className="nc-branch-tip"><span>i</span>值为 True 时条件成立，可输入常量或链接上游 Bool 变量。</div></div>}
           {type === 'plc' && <PlcSettings draft={draft} patch={patch} variables={variables} />}
         </fieldset>
-        {!compact && <div className="node-config-preview nc-preview">{previewUrl && previewUrl !== failedPreview ? <PreviewImage key={previewUrl} src={previewUrl} annotations={previewAnnotations} onError={() => setFailedPreview(previewUrl)} /> : <div className="nc-preview-empty">{failedPreview ? '图像加载失败，请重新调试' : type === 'capture' && draft.source === 'camera' ? '尚未采集相机图像' : '暂无预览图像'}<small>点击调试获取当前配置的图像</small></div>}</div>}
+        {!compact && <div className="node-config-preview nc-preview">{previewUrl && previewUrl !== failedPreview ? <PreviewImage key={previewUrl} src={previewUrl} annotations={previewAnnotations} onError={() => setFailedPreview(previewUrl)} /> : type === 'capture' ? null : <div className="nc-preview-empty">{failedPreview ? '图像加载失败，请重新调试' : '暂无预览图像'}<small>点击调试获取当前配置的图像</small></div>}</div>}
       </div>
       <footer className="node-config-footer nc-footer">
         <div className="nc-feedback" role={error ? 'alert' : 'status'}>{error || (busy ? `${busy}中…` : notice)}</div>
-        {type === 'capture' && draft.source === 'dir' && draft.dir.autoSwitch && <button type="button" disabled={!onDebug || (!!busy && !playing)} onClick={() => { if (playing) setPlaying(false); else if (validate()) { setPlayIndex(0); setPlaying(true) } }}>{playing ? '停止播放' : '播放预览'}</button>}
-        {onDebug && <button type="button" disabled={!!busy || playing} onClick={() => debug()}>{busy === '调试' ? '调试中' : '调试'}</button>}
+        {type === 'capture' && draft.source === 'camera' && <div className="nc-camera-execution"><button type="button" disabled={!onDebug || !!busy} onClick={() => debug()}>{busy === '调试' ? '执行中' : '执行'}</button>{debugSucceeded && <><i /><b>OK</b></>}{debugDurationMs !== null && <span>耗时(μs)：{debugDurationMs * 1000}</span>}</div>}
+        {type !== 'capture' && onDebug && <button type="button" disabled={!!busy} onClick={() => debug()}>{busy === '调试' ? '调试中' : '调试'}</button>}
         <button type="button" onClick={close} disabled={busy === '保存'}>取消</button>
-        <button type="submit" className="primary" disabled={!!busy || playing}>{busy === '保存' ? '保存中' : '保存'}</button>
+        <button type="submit" className="primary" disabled={!!busy}>{busy === '保存' ? '保存中' : '保存'}</button>
       </footer>
     </form>
   </div>
@@ -245,44 +257,74 @@ function PreviewImage({ src, annotations, onError }: { src: string; annotations:
 }
 
 interface SettingsProps { draft: Params; patch: (changes: Params) => void; variables: VariableOption[] }
-function CaptureSettings({ draft, patch, cameras, fileRef, onScan, onUpload, variables }: SettingsProps & { cameras: Camera[]; fileRef: React.RefObject<HTMLInputElement | null>; onScan: () => void; onUpload: (file?: File) => void }) {
+const formatFileSize = (size: unknown) => {
+  const bytes = Number(size)
+  if (!Number.isFinite(bytes) || bytes <= 0) return '—'
+  return bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)}MB` : `${Math.max(1, Math.round(bytes / 1024))}KB`
+}
+
+const formatFileTime = (file: Params) => {
+  const value = file.createdAt || file.modifiedAt || file.mtime
+  if (!value) return '—'
+  const date = new Date(typeof value === 'number' && value < 10_000_000_000 ? value * 1000 : value)
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString('zh-CN', { hour12: false })
+}
+
+function CaptureSettings({ draft, patch, cameras, fileRef, onScan, onUpload, onPreviewFile }: SettingsProps & { cameras: Camera[]; fileRef: React.RefObject<HTMLInputElement | null>; onScan: () => void; onUpload: (file?: File) => void; onPreviewFile: (path: string) => void }) {
   const c = draft.camera, dir = draft.dir
+  const [selectedFileIndex, setSelectedFileIndex] = useState(0)
+  const [sortAscending, setSortAscending] = useState(true)
   const cameraPatch = (value: Params) => patch({ camera: { ...c, ...value } })
   const dirPatch = (value: Params) => patch({ dir: { ...dir, ...value } })
-  return <>
-    <section className="nc-source-block"><div className="nc-source-head"><span>图像源</span><div className="nc-source-tabs">{[['file', '指定图片'], ['dir', '文件目录'], ['camera', '相机']].map(([key, text]) => <button type="button" aria-pressed={draft.source === key} className={draft.source === key ? 'active' : ''} key={key} onClick={() => patch({ source: key })}><i />{text}</button>)}</div></div></section>
-    {draft.source === 'file' && <section className="nc-section"><h4>指定图片</h4><input ref={fileRef} hidden type="file" accept=".jpg,.jpeg,.png,.bmp,.tif,.tiff" onChange={event => { onUpload(event.target.files?.[0]); event.target.value = '' }} /><div className="nc-path-line"><input aria-label="图片路径" value={draft.file.path} placeholder="图片路径" onChange={event => patch({ file: { path: event.target.value } })} /><button type="button" className="nc-small-button" onClick={() => fileRef.current?.click()}>选择图片</button></div><div className="nc-image-summary"><span>当前图片</span><b title={draft.file.path}>{draft.file.name || draft.file.path || '未选择'}</b></div></section>}
+  const selectedCount = dir.files.filter((file: Params) => file.selected !== false).length
+  const moveSelectedFile = (offset: number) => {
+    const nextIndex = selectedFileIndex + offset
+    if (selectedFileIndex < 0 || nextIndex < 0 || nextIndex >= dir.files.length) return
+    const files = [...dir.files]
+    ;[files[selectedFileIndex], files[nextIndex]] = [files[nextIndex], files[selectedFileIndex]]
+    setSelectedFileIndex(nextIndex)
+    dirPatch({ files })
+  }
+  const transformActions: Array<[string, string, string]> = [
+    ['hflip', '水平翻转', captureFlipHorizontalIcon],
+    ['vflip', '垂直翻转', captureFlipVerticalIcon],
+    ['rot90_ccw', '逆时针旋转', captureRotateLeftIcon],
+    ['rot90_cw', '顺时针旋转', captureRotateRightIcon],
+    ['rot180', '旋转180度', captureRotate180Icon],
+  ]
+  return <div className="nc-capture-settings">
+    <section className="nc-source-block"><div className="nc-source-head"><span>图像源</span><div className="nc-source-tabs">{[['file', '指定图片'], ['dir', '文件目录'], ['camera', '相机']].map(([key, text]) => <button type="button" aria-pressed={draft.source === key} className={draft.source === key ? 'active' : ''} key={key} onClick={() => patch({ source: key })}><img src={draft.source === key ? captureRadioCheckedIcon : captureRadioUncheckedIcon} alt="" />{text}</button>)}</div></div></section>
+    {draft.source === 'file' && <>
+      <section className="nc-capture-file-section"><strong>文件路径</strong><input ref={fileRef} hidden type="file" accept=".jpg,.jpeg,.png,.bmp,.tif,.tiff" onChange={event => { onUpload(event.target.files?.[0]); event.target.value = '' }} /><div className="nc-capture-path"><input aria-label="图片路径" value={draft.file.path} placeholder="请选择图片" onChange={event => patch({ file: { ...draft.file, path: event.target.value } })} /><button type="button" aria-label="选择图片" title="选择图片" onClick={() => fileRef.current?.click()}><img src={captureFolderIcon} alt="" /></button><small>支持格式：JPG、PNG、BMP、TIFF</small></div></section>
+      <section className="nc-capture-info-section"><strong>图像信息</strong><div>{[['尺寸', draft.file.width && draft.file.height ? `${draft.file.width}*${draft.file.height}` : '—'], ['格式', draft.file.format || '—'], ['大小', formatFileSize(draft.file.size)], ['位深', draft.file.bitDepth || '—']].map(([name, value]) => <p key={name}><span>{name}</span><b>{value}</b></p>)}</div></section>
+    </>}
     {draft.source === 'dir' && <>
-      <section className="nc-section"><h4>文件路径</h4><div className="nc-path-line"><input aria-label="目录路径" value={dir.path} placeholder="图片目录路径" onChange={event => dirPatch({ path: event.target.value, files: [] })} /><button type="button" className="nc-small-button" onClick={onScan}>扫描</button></div></section>
-      <section className="nc-file-block"><div className="nc-list-title"><h4>图片列表（{dir.files.filter((f: Params) => f.selected !== false).length}/{dir.files.length}）</h4><button type="button" onClick={() => dirPatch({ files: dir.files.map((f: Params) => ({ ...f, selected: true })) })}>全选</button><button type="button" onClick={() => dirPatch({ files: dir.files.map((f: Params) => ({ ...f, selected: false })) })}>清空选择</button></div><div className="nc-file-head"><span>选用</span><span>文件</span></div><div className="nc-file-list">{dir.files.map((file: Params, index: number) => <label className="nc-file-row" key={file.path}><input type="checkbox" checked={file.selected !== false} onChange={event => dirPatch({ files: dir.files.map((row: Params, i: number) => i === index ? { ...row, selected: event.target.checked } : row) })} /><span title={file.path}>{file.name || file.path}</span></label>)}{!dir.files.length && <div className="nc-empty">尚未扫描到图片</div>}</div></section>
-      <Toggle label="自动切换预览" checked={dir.autoSwitch} onChange={autoSwitch => dirPatch({ autoSwitch })} />
-      <Toggle label="循环" checked={dir.loop} onChange={loop => dirPatch({ loop })} />
-      {dir.autoSwitch && <NumberField label="切换间隔(μs)" value={dir.intervalUs} min={1} onChange={intervalUs => dirPatch({ intervalUs })} />}
+      <section className="nc-directory-path"><strong>文件路径</strong><div className="nc-capture-path"><input aria-label="目录路径" value={dir.path} placeholder="请选择目录" onChange={event => dirPatch({ path: event.target.value, files: [] })} onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); onScan() } }} /><button type="button" aria-label="扫描目录" title="扫描目录" onClick={onScan}><img src={captureFolderIcon} alt="" /></button></div></section>
+      <section className="nc-directory-list-section">
+        <div className="nc-directory-options"><strong>图像信息</strong><div className="nc-directory-option-controls"><div className="nc-directory-checks"><label><input type="checkbox" checked={dir.autoSwitch} onChange={event => dirPatch({ autoSwitch: event.target.checked })} />自动切换</label><label><input type="checkbox" checked={dir.loop} onChange={event => dirPatch({ loop: event.target.checked })} />循环</label></div><div className="nc-directory-gap-control"><span>间隔</span><div className="nc-directory-interval"><input aria-label="切换间隔" type="number" min={1} value={dir.intervalUs ?? ''} onChange={event => dirPatch({ intervalUs: event.target.value === '' ? null : event.target.valueAsNumber })} /><b>μs</b></div></div></div></div>
+        <div className="nc-directory-toolbar"><strong>图片列表</strong><div><button type="button" aria-label="上移图片" title="上移" disabled={selectedFileIndex <= 0} onClick={() => moveSelectedFile(-1)}><img src={captureMoveUpIcon} alt="" /></button><button type="button" className="move-down" aria-label="下移图片" title="下移" disabled={selectedFileIndex < 0 || selectedFileIndex >= dir.files.length - 1} onClick={() => moveSelectedFile(1)}><img src={captureMoveUpIcon} alt="" /></button><i /><button type="button" aria-label="图片排序" title="按名称排序" onClick={() => { const direction = sortAscending ? 1 : -1; dirPatch({ files: [...dir.files].sort((a: Params, b: Params) => direction * String(a.name || a.path).localeCompare(String(b.name || b.path))) }); setSortAscending(value => !value); setSelectedFileIndex(0) }}><img src={captureSortIcon} alt="" /></button><i /><button type="button" aria-label="删除图片" title="删除" disabled={!dir.files.length} onClick={() => { dirPatch({ files: dir.files.filter((_: Params, index: number) => index !== selectedFileIndex) }); setSelectedFileIndex(Math.max(0, Math.min(selectedFileIndex, dir.files.length - 2))) }}><img src={captureDeleteIcon} alt="" /></button></div></div>
+        <div className="nc-directory-table"><div className="nc-file-head"><span>选用</span><span>序号</span><span>名称</span><span>创建时间</span></div><div className="nc-file-list">{dir.files.map((file: Params, index: number) => <div role="button" tabIndex={0} aria-selected={selectedFileIndex === index} className={`nc-file-row ${selectedFileIndex === index ? 'selected' : ''}`} key={file.path} onClick={() => { setSelectedFileIndex(index); onPreviewFile(file.path) }} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSelectedFileIndex(index); onPreviewFile(file.path) } }}><input aria-label={`选用${file.name || index + 1}`} type="checkbox" checked={file.selected !== false} onClick={event => event.stopPropagation()} onChange={event => dirPatch({ files: dir.files.map((row: Params, i: number) => i === index ? { ...row, selected: event.target.checked } : row) })} /><span>{index}</span><span title={file.path}><img src={captureImageIcon} alt="" />{file.name || file.path}</span><span>{formatFileTime(file)}</span></div>)}{!dir.files.length && <div className="nc-empty">尚未扫描到图片</div>}</div><div className="nc-directory-summary"><label><input type="checkbox" checked={!!dir.files.length && selectedCount === dir.files.length} onChange={event => dirPatch({ files: dir.files.map((file: Params) => ({ ...file, selected: event.target.checked })) })} />全选</label><span>共{dir.files.length}个文件/已选{selectedCount}个</span></div></div>
+      </section>
     </>}
     {draft.source === 'camera' && <>
-      <section className="nc-section"><h4>相机基础配置</h4><div className="nc-section-fields">
-        <Field label="相机选择"><select aria-label="相机选择" value={c.cameraId} onChange={event => cameraPatch({ cameraId: event.target.value })}><option value="">请选择已连接相机</option>{c.cameraId && !cameras.some(camera => camera.id === c.cameraId && camera.connected) && <option value={c.cameraId} disabled>{c.cameraId}（未连接）</option>}{cameras.filter(camera => camera.connected).map(camera => <option key={camera.id} value={camera.id}>{camera.name} · {camera.model}</option>)}</select></Field>
-        <Field label="采集模式"><select value={c.triggerMode} onChange={event => cameraPatch({ triggerMode: event.target.value })}><option value="soft">软触发</option><option value="hardware">硬触发</option><option value="continuous">连续采集</option></select></Field>
-        <Toggle label="启用采集超时" checked={c.timeout.enabled} onChange={enabled => cameraPatch({ timeout: { ...c.timeout, enabled } })} />
-        {c.timeout.enabled && <NumberField label="采集超时(μs)" min={1} value={c.timeout.valueUs} onChange={valueUs => cameraPatch({ timeout: { ...c.timeout, valueUs } })} />}
-      </div></section>
-      <section className="nc-section"><h4>成像参数</h4><div className="nc-section-fields">{(['exposure', 'gain', 'line'] as const).map(key => <div key={key}><Toggle label={{ exposure: '曝光时间(μs)', gain: '增益', line: '行数' }[key]} checked={c[key].enabled} onChange={enabled => cameraPatch({ [key]: { ...c[key], enabled } })} />{c[key].enabled && <ValueField label={{ exposure: '曝光值', gain: '增益值', line: '行数值' }[key]} kind={key === 'line' ? 'Int' : 'Float'} min={key === 'gain' ? 0 : 1} value={c[key].value} variables={variables} onChange={value => cameraPatch({ [key]: { ...c[key], value } })} />}</div>)}</div></section>
-      <section className="nc-section compact"><h4>图像变换</h4><Toggle label="启用图像变换" checked={c.transform.enabled} onChange={enabled => cameraPatch({ transform: { ...c.transform, enabled } })} />{c.transform.enabled && <Field label="变换方式"><select value={c.transform.mode} onChange={event => cameraPatch({ transform: { ...c.transform, mode: event.target.value } })}>{[['none', '无'], ['hflip', '水平翻转'], ['vflip', '垂直翻转'], ['rot90_cw', '顺时针90°'], ['rot90_ccw', '逆时针90°'], ['rot180', '旋转180°']].map(([value, text]) => <option key={value} value={value}>{text}</option>)}</select></Field>}</section>
+      <section className="nc-camera-base-section"><strong>相机基础配置</strong><div className="nc-camera-fields"><label><span>相机选择</span><div className="nc-camera-select-wrap"><img src={captureCameraIcon} alt="" /><DesignSelect className="nc-camera-select-trigger" ariaLabel="相机选择" value={c.cameraId} onChange={cameraId => cameraPatch({ cameraId })} options={[{ value: '', label: '请选择' }, ...(c.cameraId && !cameras.some(camera => camera.id === c.cameraId && camera.connected) ? [{ value: c.cameraId, label: `${c.cameraId}（未连接）`, disabled: true }] : []), ...cameras.filter(camera => camera.connected).map(camera => ({ value: camera.id, label: `${camera.name} · ${camera.model}` }))]} /></div></label><label><span>采集模式</span><DesignSelect ariaLabel="采集模式" value={c.triggerMode} onChange={triggerMode => cameraPatch({ triggerMode })} options={[{ value: 'soft', label: '软触发' }, { value: 'hardware', label: '硬触发' }, { value: 'continuous', label: '连续采集' }]} /></label><label><span>采集超时(μs)</span><input aria-label="采集超时(μs)" type="number" min={1} value={c.timeout.valueUs ?? ''} onChange={event => cameraPatch({ timeout: { ...c.timeout, enabled: true, valueUs: event.target.value === '' ? null : event.target.valueAsNumber } })} /></label></div></section>
+      <section className="nc-camera-imaging-section"><strong>成像参数</strong><div className="nc-camera-imaging"><label className="nc-camera-toggle"><button type="button" role="switch" aria-checked={c.exposure.enabled} className={c.exposure.enabled ? 'on' : ''} onClick={() => cameraPatch({ exposure: { ...c.exposure, enabled: !c.exposure.enabled } })}><i /></button><span>曝光时间(μs)</span></label>{c.exposure.enabled && <input aria-label="曝光时间(μs)" type="number" min={1} value={numberContent(c.exposure.value, 500)} onChange={event => cameraPatch({ exposure: { ...c.exposure, value: literal(event.target.valueAsNumber) } })} />}<label className="nc-camera-toggle"><button type="button" role="switch" aria-checked={c.gain.enabled} className={c.gain.enabled ? 'on' : ''} onClick={() => cameraPatch({ gain: { ...c.gain, enabled: !c.gain.enabled } })}><i /></button><span>增益</span></label>{c.gain.enabled && <input aria-label="增益" type="number" min={0} value={numberContent(c.gain.value, 0)} onChange={event => cameraPatch({ gain: { ...c.gain, value: literal(event.target.valueAsNumber) } })} />}</div></section>
+      <section className="nc-camera-transform-section"><strong>图像变换</strong><div className="nc-transform-actions">{transformActions.map(([mode, title, icon]) => <button type="button" key={mode} title={title} aria-label={title} aria-pressed={c.transform.enabled && c.transform.mode === mode} className={c.transform.enabled && c.transform.mode === mode ? 'active' : ''} onClick={() => cameraPatch({ transform: c.transform.enabled && c.transform.mode === mode ? { enabled: false, mode: 'none' } : { enabled: true, mode } })}><img src={icon} alt="" /></button>)}</div></section>
     </>}
-  </>
+  </div>
 }
 
 function ModelSettings({ draft, patch, models, variables }: SettingsProps & { models: ModelPackage[] }) {
   const [tab, setTab] = useState('model')
   const model = models.find(item => item.model_id === draft.modelId)
   return <><Tabs values={[['basic', '基础设置'], ['model', '模型设置']]} value={tab} onChange={setTab} />{tab === 'basic' ? <ValueField label="输入图像" kind="Image" value={draft.image} variables={variables} onChange={image => patch({ image })} /> : <>
-    <Field label="模型选择"><select value={draft.modelId || ''} onChange={event => {
-      const next = models.find(item => item.model_id === event.target.value)
-      const changes: Params = { modelId: event.target.value }
+    <Field label="模型选择"><DesignSelect value={draft.modelId || ''} onChange={modelId => {
+      const next = models.find(item => item.model_id === modelId)
+      const changes: Params = { modelId }
       for (const param of model?.manifest.params || []) if (!['modelId', 'image', 'lable', 'label'].includes(param.name)) changes[param.name] = null
       for (const param of next?.manifest.params || []) if (!['modelId', 'image', 'lable', 'label'].includes(param.name)) changes[param.name] = valueObject(param.default)
       patch(changes)
-    }}><option value="">请选择</option>{draft.modelId && !model && <option value={draft.modelId} disabled>{draft.modelId}（不可用）</option>}{models.map(item => <option key={item.model_id} value={item.model_id}>{item.name} · {item.version}{item.serviceStatus === 'running' ? '' : '（未启动）'}</option>)}</select></Field>
+    }} options={[{ value: '', label: '请选择' }, ...(draft.modelId && !model ? [{ value: draft.modelId, label: `${draft.modelId}（不可用）`, disabled: true }] : []), ...models.map(item => ({ value: item.model_id, label: `${item.name} · ${item.version}${item.serviceStatus === 'running' ? '' : '（未启动）'}` }))]} /></Field>
     {model ? <><section className="nc-model-info"><h4>模型信息</h4>{[['模型名称', model.name], ['模型 ID', model.model_id], ['版本', model.version], ['服务状态', model.serviceStatus === 'running' ? '运行中' : model.serviceStatus === 'error' ? '错误' : '未启动']].map(([key, value]) => <div key={key}><span>{key}</span><b title={value}>{value}</b></div>)}</section><section className="nc-section"><h4>推理参数</h4>{(model.manifest.params || []).filter(param => !['modelId', 'image', 'lable', 'label'].includes(param.name)).map(param => {
       const kind = kindOf(param.type)
       return kind ? <ValueField key={param.name} label={param.label || param.name} kind={kind} value={draft[param.name]} min={param.min} max={param.max} variables={variables} onChange={value => patch({ [param.name]: value })} /> : <p className="node-config-help" key={param.name}>{param.label || param.name}：暂不支持的参数类型 {param.type}</p>
@@ -420,7 +462,7 @@ function DisplayItemValueField({ label, kind, value, variables, onChange, placeh
     <div className="nc-item-control-pair">
       <div className={`nc-item-control ${isRef ? 'is-reference' : ''}`}>
         {kind === 'Region' ? <span title={String(value?.ref || '')}>{selected?.label || value?.name || placeholder}</span>
-          : kind === 'Bool' ? <><select aria-label={label} value={isRef ? '__reference__' : String(value?.ref ?? false)} onChange={event => onChange(event.target.value === '__reference__' ? value || literal(false) : literal(event.target.value === 'true'))}>{isRef && <option value="__reference__">{selected?.label || value?.name || String(value?.ref)}</option>}<option value="false">False</option><option value="true">True</option></select><img className="nc-item-chevron" src={displayChevronDownIcon} alt="" /></>
+          : kind === 'Bool' ? <DesignSelect className="nc-item-select" ariaLabel={label} value={isRef ? '__reference__' : String(value?.ref ?? false)} onChange={next => onChange(next === '__reference__' ? value || literal(false) : literal(next === 'true'))} options={[...(isRef ? [{ value: '__reference__', label: selected?.label || value?.name || String(value?.ref) }] : []), { value: 'false', label: 'False' }, { value: 'true', label: 'True' }]} />
             : <input aria-label={label} value={isRef ? selected?.label || value?.name || String(value?.ref || '') : String(value?.ref ?? '')} placeholder={placeholder} onChange={event => onChange(literal(event.target.value))} />}
       </div>
       <button type="button" className="nc-item-link" aria-label={`选择${label}引用`} aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}><img src={displayLinkIcon} alt="" /></button>
@@ -450,7 +492,7 @@ function numberContent(value: ValueObject | number | null | undefined, fallback:
 }
 
 function PlcSettings({ draft, patch, variables }: SettingsProps) {
-  return <section className="nc-section"><h4>Modbus TCP</h4><Field label="主机地址"><input value={draft.host} placeholder="IP 地址或主机名" onChange={event => patch({ host: event.target.value })} /></Field><NumberField label="端口" value={draft.port} min={1} max={65535} onChange={port => patch({ port })} /><NumberField label="单元 ID" value={draft.unitId} min={0} max={255} onChange={unitId => patch({ unitId })} /><NumberField label="地址" value={draft.address} min={0} max={65535} onChange={address => patch({ address })} /><Field label="操作类型"><select value={draft.operation} onChange={event => patch({ operation: event.target.value, value: literal(event.target.value === 'coil' ? false : 0) })}><option value="coil">写入线圈 (coil)</option><option value="register">写入寄存器 (register)</option></select></Field><ValueField key={draft.operation} label="写入值" kind={draft.operation === 'coil' ? 'Bool' : 'Int'} value={draft.value} min={0} max={65535} variables={variables} onChange={value => patch({ value })} /><div className="node-config-help">地址从 0 开始。调试将实际写入 PLC。</div></section>
+  return <section className="nc-section"><h4>Modbus TCP</h4><Field label="主机地址"><input value={draft.host} placeholder="IP 地址或主机名" onChange={event => patch({ host: event.target.value })} /></Field><NumberField label="端口" value={draft.port} min={1} max={65535} onChange={port => patch({ port })} /><NumberField label="单元 ID" value={draft.unitId} min={0} max={255} onChange={unitId => patch({ unitId })} /><NumberField label="地址" value={draft.address} min={0} max={65535} onChange={address => patch({ address })} /><Field label="操作类型"><DesignSelect value={draft.operation} onChange={operation => patch({ operation, value: literal(operation === 'coil' ? false : 0) })} options={[{ value: 'coil', label: '写入线圈 (coil)' }, { value: 'register', label: '写入寄存器 (register)' }]} /></Field><ValueField key={draft.operation} label="写入值" kind={draft.operation === 'coil' ? 'Bool' : 'Int'} value={draft.value} min={0} max={65535} variables={variables} onChange={value => patch({ value })} /><div className="node-config-help">地址从 0 开始。调试将实际写入 PLC。</div></section>
 }
 
 function ValueField({ label, kind, value, variables, onChange, min, max }: { label: string; kind: ValueKind; value?: ValueObject | null; variables: VariableOption[]; onChange: (value: ValueObject | null) => void; min?: number; max?: number }) {
@@ -461,9 +503,9 @@ function ValueField({ label, kind, value, variables, onChange, min, max }: { lab
   const selected = available.find(item => item.ref === value?.ref)
   const fallback = kind === 'Bool' ? false : kind === 'Text' ? '' : (min ?? 0)
   return <div className="nc-value-field">
-    <div className="nc-value-heading"><span>{label}</span>{allowLiteral && <select aria-label={`${label}输入方式`} value={refMode ? 'ref' : 'content'} onChange={event => { if (event.target.value === 'ref') setOpen(true); else { onChange(literal(fallback)); setOpen(false) } }}><option value="content">常量</option><option value="ref">变量引用</option></select>}</div>
+    <div className="nc-value-heading"><span>{label}</span>{allowLiteral && <DesignSelect className="nc-value-mode" ariaLabel={`${label}输入方式`} value={refMode ? 'ref' : 'content'} onChange={next => { if (next === 'ref') setOpen(true); else { onChange(literal(fallback)); setOpen(false) } }} options={[{ value: 'content', label: '常量' }, { value: 'ref', label: '变量引用' }]} />}</div>
     {refMode ? <div className="nc-reference-box"><span title={String(value?.ref || '')}>{selected?.label || value?.name || value?.ref || '请选择上游变量'}</span><button type="button" aria-label={`选择${label}引用`} aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}><img src={linkIcon} alt="" /></button></div>
-      : kind === 'Bool' ? <select aria-label={label} value={String(value?.ref ?? false)} onChange={event => onChange(literal(event.target.value === 'true'))}><option value="false">False</option><option value="true">True</option></select>
+      : kind === 'Bool' ? <DesignSelect ariaLabel={label} value={String(value?.ref ?? false)} onChange={next => onChange(literal(next === 'true'))} options={[{ value: 'false', label: 'False' }, { value: 'true', label: 'True' }]} />
         : <input aria-label={label} type={kind === 'Text' ? 'text' : 'number'} step={kind === 'Int' ? 1 : 'any'} min={min} max={max} value={value?.ref == null ? '' : String(value.ref)} onChange={event => onChange(kind === 'Text' ? literal(event.target.value) : event.target.value === '' ? null : literal(event.target.valueAsNumber))} />}
     {refMode && value?.ref && !selected && <small className="nc-invalid-ref">引用已失效或类型不匹配，请重新选择。</small>}
     {open && <VariableReferenceDialog label={label} kind={kind} variables={available} value={value} onClose={() => setOpen(false)} onSelect={item => { onChange({ type: 'ref', ref: item.ref, name: item.label }); setOpen(false) }} />}
@@ -528,7 +570,6 @@ function variableValue(item: VariableOption): string {
 
 function Field({ label, children }: { label: string; children: ReactNode }) { return <label className="nc-field"><span>{label}</span>{children}</label> }
 function NumberField({ label, value, onChange, min, max }: { label: string; value: number | null; onChange: (value: number | null) => void; min?: number; max?: number }) { return <Field label={label}><input aria-label={label} type="number" step={1} min={min} max={max} value={value ?? ''} onChange={event => onChange(event.target.value === '' ? null : event.target.valueAsNumber)} /></Field> }
-function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) { return <div className="nc-switch-line nc-toggle"><button type="button" role="switch" aria-label={label} aria-checked={!!checked} className={`nc-switch ${checked ? 'on' : ''}`} onClick={() => onChange(!checked)}><i /></button><span>{label}</span></div> }
 function Tabs({ values, value, onChange }: { values: string[][]; value: string; onChange: (value: string) => void }) { return <div className="nc-tabs">{values.map(([key, title]) => <button type="button" key={key} aria-pressed={value === key} className={value === key ? 'active' : ''} onClick={() => onChange(key)}>{title}</button>)}</div> }
 function stepIcon(type: NodeType) { const src = iconAssets.flow[type as keyof typeof iconAssets.flow]; return src ? <img src={src} alt="" {...iconSizes.flow} /> : <span className="node-config-dot" /> }
 

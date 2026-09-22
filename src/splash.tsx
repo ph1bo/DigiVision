@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { backendLogPath, desktop, finishSplash, initializeRuntime, inspectRuntime, restartBackend } from './api'
 import { summarizeCapabilities, type SplashSummary } from './splash-logic'
+import splashLogo from './assets/mastergo/splash-logo.svg'
 import './splash.css'
 
 function SplashApp() {
@@ -52,7 +53,7 @@ function SplashApp() {
     <main className="splash-shell" data-tauri-drag-region>
       <section className="splash-brand-panel">
         <header className="splash-header">
-          <div className="splash-logo-mark" aria-hidden="true"><span /></div>
+          <img className="splash-logo" src={splashLogo} alt="" />
           <div className="splash-brand-lockup">
             <div className="splash-brand">Digi Vision</div>
             <div className="splash-caption">AI工业视觉检测平台</div>
@@ -61,8 +62,8 @@ function SplashApp() {
 
         <div className="splash-wordmark">
           <h1>DIGI<br /><span>VISION</span></h1>
-          <p className="splash-tagline"><i />AI Vision for a Digital World</p>
-          <p className="splash-motto">让机器看懂世界&nbsp; · &nbsp;让数据驱动未来</p>
+          <p className="splash-tagline">让机器看懂世界 · 让数据驱动未来</p>
+          <p className="splash-motto">AI Vision for a Digital World</p>
           <div className="splash-feature-list" aria-label="功能模块">
             <span><b className="feature-icon feature-defect" />缺陷检测</span>
             <span><b className="feature-icon feature-target" />目标定位</span>

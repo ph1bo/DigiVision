@@ -13,7 +13,8 @@ function App() {
   // 控件按高保等比缩放，多出的窗口空间交给图像区，舞台始终贴合窗口。
   useLayoutEffect(() => {
     const fit = () => {
-      const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080)
+      // 设计稿以 1920×1080 为基准；窗口较小时保留可读的控件比例，再按缩放后的舞台尺寸铺满窗口。
+      const scale = Math.min(1, Math.max(0.85, window.innerWidth / 1920, window.innerHeight / 1080))
       const style = document.documentElement.style
       style.setProperty('--stage-scale', String(scale))
       style.setProperty('--stage-width', `${window.innerWidth / scale}px`)

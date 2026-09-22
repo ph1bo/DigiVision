@@ -1,6 +1,6 @@
 :root {
   color: #f0f4fb;
-  background: #090c12;
+  background: #18191C;
   font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   font-synthesis: none;
 }
@@ -13,7 +13,7 @@ button { font: inherit; }
   width: 100%;
   height: 100%;
   display: flex;
-  background: #090c12;
+  background: #18191C;
 }
 
 .splash-brand-panel {
@@ -23,7 +23,7 @@ button { font: inherit; }
   padding: 6.8% 8.2% 3.8% 6.4%;
   display: flex;
   flex-direction: column;
-  background: #090c12;
+  background: #18191C;
 }
 
 .splash-header { display: flex; align-items: center; gap: 16px; }
@@ -102,4 +102,89 @@ button { font: inherit; }
   .splash-brand-panel { width: 100%; min-width: 0; padding: 9% 8% 7%; }
   .splash-visual-panel { display: none; }
   .splash-meta-row { margin-top: 25px; }
+}
+
+/* MasterGo 启动页 1200×820 / 紫色主题还原 */
+:root { color: #EAEBEF; }
+.splash-shell { background: #18191C; }
+.splash-brand-panel {
+  width: 43.333%;
+  min-width: 430px;
+  padding: 40px 40px 40px 40px;
+  background: #18191C;
+}
+.splash-header { align-items: flex-start; gap: 8px; }
+.splash-logo { width: 48px; height: 48px; object-fit: contain; display: block; }
+.splash-brand-lockup { line-height: normal; }
+.splash-brand { font-size: 22px; line-height: 24px; letter-spacing: 0; }
+.splash-caption { margin-top: 2px; color: #8A8C96; font-size: 12px; line-height: 16px; }
+.splash-wordmark h1 { font-size: 64px; line-height: 56px; font-weight: 700; color: #EAEBEF; }
+.splash-wordmark h1 span {
+  color: transparent;
+  background: linear-gradient(90deg, #654DFA 0%, #D6D0FF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.splash-tagline {
+  display: block;
+  margin: 24px 0 0;
+  color: #EAEBEF;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.splash-tagline i { display: none; }
+.splash-motto { margin: 2px 0 0; color: #8A8C96; font-size: 10px; line-height: 14px; font-weight: 400; white-space: nowrap; }
+.splash-feature-list { display: flex; align-items: center; gap: 8px; margin-top: 34px; }
+.splash-feature-list span {
+  display: inline-flex;
+  align-items: center;
+  height: 14px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #8A8C96;
+  font-size: 10px;
+  line-height: 14px;
+  white-space: nowrap;
+}
+.splash-feature-list span:not(:last-child)::after {
+  content: "";
+  width: 3px;
+  height: 3px;
+  margin-left: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.feature-icon { display: none !important; }
+.splash-progress-label { gap: 12px; color: #EAEBEF; font-size: 12px; line-height: 16px; }
+.splash-progress-label strong { font-weight: 400; }
+.splash-progress-label b { margin-left: auto; color: #EAEBEF; font-size: 12px; line-height: 16px; }
+.splash-loader { width: 12px; height: 12px; border-color: #654DFA; border-right-color: transparent; }
+.splash-progress-track { height: 4px; margin-top: 12px; border-radius: 100px; background: #33353C; }
+.splash-progress-track span { border-radius: 100px; background: linear-gradient(270deg, #654DFA 0%, #D6D0FF 100%); }
+.splash-meta-row { margin-top: 40px; color: #4E525E; font-size: 10px; line-height: 14px; }
+.splash-visual-panel {
+  width: 56.667%;
+  min-width: 0;
+  background: #3B3B43;
+  color: #8A8C96;
+}
+.splash-visual-topbar,
+.splash-visual-bottombar,
+.visual-corner,
+.radar-rings,
+.radar-orbit,
+.radar-core,
+.scan-beam,
+.visual-diamond,
+.inspection-plane { display: none !important; }
+.visual-grid {
+  opacity: 1;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, .24) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .24) 1px, transparent 1px);
+  background-size: 22px 22px;
 }

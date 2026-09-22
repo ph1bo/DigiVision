@@ -15,6 +15,7 @@ vm.runInNewContext(compiled, { exports: module.exports, module, structuredClone,
   if (id === '../api') return { api: {} }
   if (id === '../icon-assets') return { iconAssets: { flow: {} }, iconSizes: { flow: {} } }
   if (id === './AnnotationOverlay') return { AnnotationOverlay: () => null }
+  if (id === './DesignSelect') return { DesignSelect: () => null }
   if (/\.(svg|jpg|css)$/.test(id)) return ''
   return require(id)
 }})
@@ -107,4 +108,14 @@ test('PLC 原始值规范成值对象，Bool/Int 引用按操作类型校验', (
   assert.equal(validateDraft('plc', { ...p, value: { type: 'ref', ref: 'infer.ok' } }, 'PLC', vars, [], []), null)
   assert.equal(validateDraft('plc', { ...p, operation: 'register', value: { type: 'ref', ref: 'infer.count' } }, 'PLC', vars, [], []), null)
   assert.ok(validateDraft('plc', { ...p, value: { type: 'ref', ref: 'infer.count' } }, 'PLC', vars, [], []))
+})
+
+test('图像采集配置遵循高保结构且相机下拉沿用 DesignSelect', () => {
+  assert.match(source, /type !== 'capture' && <Field label="节点名称">/)
+  assert.match(source, /nc-capture-settings/)
+  assert.match(source, /className="nc-source-block"/)
+  assert.match(source, /className="nc-directory-list-section"/)
+  assert.match(source, /className="nc-camera-base-section"/)
+  assert.match(source, /ariaLabel="相机选择"/)
+  assert.match(source, /图像变换/)
 })

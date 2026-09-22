@@ -281,7 +281,7 @@ async def scan_image_files(request: Request) -> dict[str, Any]:
         raise HTTPException(status_code=400, detail="目录不存在或不可访问")
     allowed = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff"}
     files = [
-        {"path": str(path), "name": path.name, "size": path.stat().st_size}
+        {"path": str(path), "name": path.name, "size": path.stat().st_size, "mtime": path.stat().st_mtime}
         for path in sorted(directory.iterdir())
         if path.is_file() and path.suffix.lower() in allowed
     ]
@@ -302,8 +302,12 @@ async def upload_image_file(file: UploadFile = File(...)) -> dict[str, Any]:
     if decoded is None:
         raise HTTPException(status_code=400, detail="无法解码图像，请选择有效图片")
     target.write_bytes(content)
+    channels = int(decoded.shape[2]) if decoded.ndim == 3 else 1
+    bit_depth = int(decoded.dtype.itemsize * 8 * channels)
     return ok({"path": str(target), "name": file.filename or target.name,
-               "width": int(decoded.shape[1]), "height": int(decoded.shape[0])})
+               "width": int(decoded.shape[1]), "height": int(decoded.shape[0]),
+               "size": len(content), "format": suffix.removeprefix(".").upper(),
+               "bitDepth": f"{bit_depth}-bit {'RGB' if channels == 3 else 'Gray'}"})
 
 
 @app.post("/api/v1/models/import")

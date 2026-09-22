@@ -74,6 +74,18 @@ test('相邻 Region 标签在界面坐标中自动错开', () => {
   }
 })
 
+test('密集 Region 标签保持在自身框附近，不沿单一方向漂移', () => {
+  const layout = overlayModule.exports.layoutRegionLabels
+  const rows = Array.from({ length: 8 }, (_, index) => ({
+    kind: 'rect', x: 100 + index * 8, y: 100 + index * 6, label: '螺丝钉',
+  }))
+  const labels = layout(rows, { left: 0, top: 0, width: 500, height: 500 }, 1000, 1000)
+  labels.forEach((item, index) => {
+    const preferredTop = Math.max(0, Math.min((rows[index].y / 1000) * 500 - 20, 480))
+    assert.ok(Math.abs(item.top - preferredTop) <= 20, `标签 ${index} 偏离自身框过远`)
+  })
+})
+
 test('用户配置的 OK 或 NG 文本不会生成系统状态徽标', () => {
   for (const content of ['OK', 'NG']) {
     const markup = renderToStaticMarkup(React.createElement(module.exports.ImageTile, {

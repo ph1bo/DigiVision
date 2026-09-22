@@ -2,11 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api, imageUrl } from '../api'
 import cameraManageIcon from '../assets/mastergo/camera-manage.svg'
-import chevronDownIcon from '../assets/mastergo/chevron-down.svg'
 import closeIcon from '../assets/mastergo/close.svg'
 import linkIcon from '../assets/mastergo/link.svg'
 import trashIcon from '../assets/mastergo/trash.svg'
 import unlinkIcon from '../assets/mastergo/unlink.svg'
+import { DesignSelect } from '../components/DesignSelect'
 import type { Camera, CameraDevice } from '../types'
 
 interface Vendor {
@@ -175,24 +175,31 @@ export function CameraPage() {
                 <label>
                   <span>相机厂商</span>
                   <div className="mg-select">
-                    <select value={vendor} onChange={(event) => setVendor(event.target.value)}>
-                      {vendors.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}
-                    </select>
-                    <img src={chevronDownIcon} alt="" />
+                    <DesignSelect
+                      value={vendor}
+                      options={vendors.map(item => ({ value: item.id, label: item.name }))}
+                      onChange={setVendor}
+                      ariaLabel="相机厂商"
+                    />
                   </div>
                 </label>
                 <label>
                   <span>相机列表</span>
                   <div className="mg-select">
-                    <select value={selectedDevice} disabled={loading} onChange={(event) => setSelectedDevice(event.target.value)}>
-                      <option value="">请选择</option>
-                      {devices.map((device) => (
-                        <option value={deviceKey(device)} disabled={device.added} key={deviceKey(device)}>
-                          {device.model} · {device.serial}{device.ip_address ? ` · ${device.ip_address}` : ''}
-                        </option>
-                      ))}
-                    </select>
-                    <img src={chevronDownIcon} alt="" />
+                    <DesignSelect
+                      value={selectedDevice}
+                      disabled={loading}
+                      options={[
+                        { value: '', label: '请选择' },
+                        ...devices.map(device => ({
+                          value: deviceKey(device),
+                          label: `${device.model} · ${device.serial}${device.ip_address ? ` · ${device.ip_address}` : ''}`,
+                          disabled: device.added,
+                        })),
+                      ]}
+                      onChange={setSelectedDevice}
+                      ariaLabel="相机列表"
+                    />
                   </div>
                 </label>
                 <label>

@@ -576,7 +576,7 @@ export function HomePage() {
             {logs.map((log) => (
               <div className="log-row" key={log.id}>
                 <span>{log.time}</span>
-                <span className={`level-${log.level}`}>{log.level.toUpperCase()}</span>
+                <span className={`level-${log.level === "success" ? "info" : log.level}`}>{log.level === "success" ? "INFO" : log.level.toUpperCase()}</span>
                 <span>{log.module}</span>
                 <span>{log.content}</span>
               </div>

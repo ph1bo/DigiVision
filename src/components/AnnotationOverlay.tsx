@@ -26,12 +26,32 @@ function layoutRegionLabels(annotations: Annotation[], frame: Frame, imageWidth:
     const width = Math.min(estimateLabelWidth(item.label), frame.width)
     const anchorX = Number(item.x ?? item.bbox?.[0] ?? 0) / Math.max(imageWidth, 1) * frame.width
     const anchorY = Number(item.y ?? item.bbox?.[1] ?? 0) / Math.max(imageHeight, 1) * frame.height
-    const left = Math.max(0, Math.min(anchorX, frame.width - width))
-    const preferredTop = Math.max(0, Math.min(anchorY - LABEL_HEIGHT, frame.height - LABEL_HEIGHT))
-    const candidates = [preferredTop]
-    for (let top = preferredTop - LABEL_HEIGHT - LABEL_GAP; top >= 0; top -= LABEL_HEIGHT + LABEL_GAP) candidates.push(top)
-    for (let top = Math.max(0, anchorY); top <= frame.height - LABEL_HEIGHT; top += LABEL_HEIGHT + LABEL_GAP) candidates.push(top)
-    const top = candidates.find(value => !intersects({ index, left, top: value, width, height: LABEL_HEIGHT })) ?? preferredTop
+    const clamp = (value: number, minimum: number, maximum: number) => Math.max(minimum, Math.min(value, maximum))
+    const preferredLeft = clamp(anchorX, 0, Math.max(0, frame.width - width))
+    const preferredTop = clamp(anchorY - LABEL_HEIGHT, 0, Math.max(0, frame.height - LABEL_HEIGHT))
+    const candidates: Array<{ left: number; top: number }> = [
+      { left: preferredLeft, top: preferredTop },
+      { left: preferredLeft, top: clamp(anchorY, 0, Math.max(0, frame.height - LABEL_HEIGHT)) },
+      { left: clamp(anchorX + LABEL_GAP, 0, Math.max(0, frame.width - width)), top: preferredTop },
+      { left: clamp(anchorX - width - LABEL_GAP, 0, Math.max(0, frame.width - width)), top: preferredTop },
+    ]
+    // 只在标签自身框附近寻找空位，避免密集目标把标签推到远处。
+    const maxHorizontalDistance = Math.ceil(frame.width / Math.max(width + LABEL_GAP, 1))
+    for (let distance = 1; distance <= maxHorizontalDistance; distance += 1) {
+      const horizontalOffset = distance * (width + LABEL_GAP)
+      for (const direction of [-1, 1]) {
+        candidates.push({ left: clamp(preferredLeft + direction * horizontalOffset, 0, Math.max(0, frame.width - width)), top: preferredTop })
+      }
+    }
+    for (let distance = 1; distance <= 3; distance += 1) {
+      const verticalOffset = distance * (LABEL_HEIGHT + LABEL_GAP)
+      for (const direction of [-1, 1]) {
+        candidates.push({ left: preferredLeft, top: clamp(preferredTop + direction * verticalOffset, 0, Math.max(0, frame.height - LABEL_HEIGHT)) })
+      }
+    }
+    const candidate = candidates.find(({ left, top }) => !intersects({ index, left, top, width, height: LABEL_HEIGHT }))
+    const left = candidate?.left ?? preferredLeft
+    const top = candidate?.top ?? preferredTop
     placed.push({ index, left, top, width, height: LABEL_HEIGHT })
   })
   return placed

@@ -30,9 +30,9 @@ export function TopBar() {
     </nav>
     <div className="window-drag-area" data-tauri-drag-region title={desktop ? '拖动窗口，双击最大化/还原' : undefined} />
     <div className="top-actions" data-tauri-drag-region="false"><span className="connection-dot" style={{ background: connected ? '#22c55e' : '#999' }} /><span>{connected ? '本地服务已连接' : '连接中…'}</span><span className="window-divider" />
-      <button disabled={!desktop} title="最小化" onClick={() => windowAction('window_minimize')}><Minus size={14} /></button>
-      <button disabled={!desktop} title="最大化/还原" onClick={() => windowAction('window_toggle_maximize')}><Square size={12} /></button>
-      <button disabled={!desktop} title="关闭" onClick={() => windowAction('window_close')}><Close size={14} /></button>
+      <button disabled={!desktop} title="最小化" onClick={() => windowAction('window_minimize')}><Minus size={10} /></button>
+      <button disabled={!desktop} title="最大化/还原" onClick={() => windowAction('window_toggle_maximize')}><Square size={10} /></button>
+      <button disabled={!desktop} title="关闭" onClick={() => windowAction('window_close')}><Close size={10} /></button>
     </div>
   </header>
 }

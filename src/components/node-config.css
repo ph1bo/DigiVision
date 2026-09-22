@@ -91,6 +91,136 @@
 .nc-overlay .nc-image-layer { position: relative; width: calc(100% - 64px); height: calc(100% - 64px); }
 .nc-overlay .nc-image-layer img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; border: 0; background: transparent; object-fit: contain; }
 .nc-overlay .nc-section-fields .nc-field :is(input, select) { flex: none; min-height: 40px; }
+.nc-overlay .design-select-trigger {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 4px;
+  background: #2c2c35;
+  color: #eaebef;
+  font-size: 14px;
+}
+.nc-overlay .design-select-trigger > img { position: static; width: 16px; height: 16px; margin-left: 12px; }
+.nc-overlay .nc-item-control .design-select-trigger { padding: 0; background: transparent; }
+.nc-overlay .nc-item-control .design-select-trigger > img { margin-left: 8px; }
+.nc-overlay .design-select-trigger.nc-value-mode {
+  flex: none;
+  width: 100px;
+  height: 26px;
+  margin-left: auto;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: #24242b;
+  color: #a299ef;
+  font-size: 12px;
+}
+
+/* MasterGo 17:423885 / 17:426535 / 17:437332：图像采集配置。 */
+.nc-overlay .nc-dialog.is-capture-dialog { width: min(1560px, calc(100vw - 32px)); height: min(880px, calc(100vh - 32px)); }
+.nc-overlay .is-capture-dialog .node-config-header { background: #29292e; }
+.nc-overlay .is-capture-dialog .node-config-main { height: 752px; }
+.nc-overlay .is-capture-dialog .nc-settings { width: 448px; flex-basis: 448px; padding: 0; overflow: hidden; background: #1c1c20; }
+.nc-overlay .is-capture-dialog .nc-preview { width: auto; height: 100%; min-width: 0; background-color: #131417; background-image: conic-gradient(#131417 25%, #1e1f25 0 50%, #131417 0 75%, #1e1f25 0); background-position: 0 0; background-size: 32px 32px; }
+.nc-overlay .is-capture-dialog .nc-footer { padding: 0 16px; background: #29292e; }
+.nc-overlay .nc-capture-settings { width: 448px; min-height: 752px; color: #eaebef; }
+.nc-overlay .nc-capture-settings strong { color: #eaebef; font-size: 14px; font-weight: 500; line-height: 20px; }
+.nc-overlay .nc-capture-settings input { border: 0; border-radius: 8px; background: #2c2c35; }
+.nc-overlay .nc-capture-settings input::placeholder { color: #565962; }
+.nc-overlay .nc-capture-settings .nc-source-block { width: 448px; height: 52px; padding: 16px; border-bottom: 1px solid rgb(255 255 255 / 13%); }
+.nc-overlay .nc-capture-settings .nc-source-head { height: 20px; gap: 16px; }
+.nc-overlay .nc-capture-settings .nc-source-head > span { width: 84px; font-weight: 500; line-height: 20px; }
+.nc-overlay .nc-capture-settings .nc-source-tabs { gap: 16px; }
+.nc-overlay .nc-capture-settings .nc-source-tabs button { gap: 8px; line-height: 20px; }
+.nc-overlay .nc-capture-settings .nc-source-tabs img { width: 14px; height: 14px; flex: none; }
+.nc-overlay .nc-capture-file-section,
+.nc-overlay .nc-directory-path { width: 448px; display: grid; grid-template-columns: 84px 316px; gap: 16px; padding: 16px; border-bottom: 1px solid rgb(255 255 255 / 13%); }
+.nc-overlay .nc-capture-file-section { height: 96px; }
+.nc-overlay .nc-directory-path { height: 72px; align-items: center; }
+.nc-overlay .nc-capture-file-section > strong { padding-top: 10px; }
+.nc-overlay .nc-capture-path { position: relative; width: 316px; }
+.nc-overlay .nc-capture-path > input { width: 316px; padding: 0 40px 0 12px; }
+.nc-overlay .nc-capture-path > button { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; color: rgb(234 235 239 / 50%); cursor: pointer; }
+.nc-overlay .nc-capture-path > button img { width: 16px; height: 16px; opacity: .5; }
+.nc-overlay .nc-capture-path > small { display: block; margin-top: 8px; color: #8a8c96; font-size: 12px; line-height: 16px; }
+.nc-overlay .nc-capture-info-section { width: 448px; height: 136px; display: grid; grid-template-columns: 84px 316px; gap: 16px; padding: 16px; border-bottom: 1px solid rgb(255 255 255 / 13%); }
+.nc-overlay .nc-capture-info-section > div { display: flex; flex-direction: column; gap: 8px; }
+.nc-overlay .nc-capture-info-section p { height: 20px; display: flex; align-items: center; justify-content: space-between; margin: 0; font-size: 14px; line-height: 20px; }
+.nc-overlay .nc-capture-info-section p span { color: #8a8c96; }
+.nc-overlay .nc-capture-info-section p b { color: #b7b9c2; font-weight: 400; }
+.nc-overlay .nc-directory-list-section { width: 448px; height: 460px; padding: 16px; border-bottom: 1px solid rgb(255 255 255 / 13%); }
+.nc-overlay .nc-directory-options { width: 416px; height: 52px; display: grid; grid-template-columns: 84px 316px; align-items: center; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid rgb(255 255 255 / 13%); }
+.nc-overlay .nc-directory-options > strong { width: 84px; flex: none; }
+.nc-overlay .nc-directory-options label { display: flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 14px; }
+.nc-overlay .nc-directory-option-controls { width: 316px; height: 40px; display: flex; align-items: center; justify-content: space-between; }
+.nc-overlay .nc-directory-checks { display: flex; align-items: center; gap: 16px; }
+.nc-overlay .nc-directory-gap-control { display: flex; align-items: center; gap: 8px; }
+.nc-overlay .nc-directory-options input[type="checkbox"],
+.nc-overlay .nc-directory-table input[type="checkbox"] { width: 14px; height: 14px; flex: none; margin: 0; padding: 0; appearance: none; border: 0; border-radius: 0; background: transparent url('../assets/mastergo/capture-checkbox-unchecked.svg') center / 14px 14px no-repeat; cursor: pointer; }
+.nc-overlay .nc-directory-options input[type="checkbox"]:checked,
+.nc-overlay .nc-directory-table input[type="checkbox"]:checked { background-image: url('../assets/mastergo/capture-checkbox-checked.svg'); }
+.nc-overlay .nc-directory-gap-control > span { white-space: nowrap; font-size: 14px; }
+.nc-overlay .nc-directory-interval { width: 112px; height: 40px; display: grid; grid-template-columns: 72px 40px; }
+.nc-overlay .nc-directory-interval input { width: 72px; padding: 0 10px; border-radius: 8px 0 0 8px; text-align: center; }
+.nc-overlay .nc-directory-interval b { display: grid; place-items: center; border-radius: 0 8px 8px 0; background: #3e3e49; font-size: 14px; font-weight: 400; }
+.nc-overlay .nc-directory-toolbar { width: 416px; height: 44px; display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 12px; }
+.nc-overlay .nc-directory-toolbar > div { height: 32px; display: flex; align-items: center; gap: 12px; }
+.nc-overlay .nc-directory-toolbar button { width: 32px; height: 32px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 8px; background: #2c2c35; color: #eaebef; cursor: pointer; }
+.nc-overlay .nc-directory-toolbar button img { width: 16px; height: 16px; }
+.nc-overlay .nc-directory-toolbar button.move-down img { transform: rotate(180deg); }
+.nc-overlay .nc-directory-toolbar > div > i { width: 2px; height: 26px; background: linear-gradient(90deg, #000 0 50%, rgb(255 255 255 / 24%) 50%); }
+.nc-overlay .nc-directory-table { width: 416px; height: 320px; overflow: hidden; background: #242426; }
+.nc-overlay .nc-directory-table .nc-file-head,
+.nc-overlay .nc-directory-table .nc-file-row { width: 416px; height: 40px; display: grid; grid-template-columns: 28px 28px 168px 144px; gap: 8px; align-items: center; padding: 0 12px; }
+.nc-overlay .nc-directory-table .nc-file-head { background: #303038; color: rgb(255 255 255 / 90%); }
+.nc-overlay .nc-directory-table .nc-file-list { height: 240px; max-height: none; overflow: auto; background: #242426; }
+.nc-overlay .nc-directory-table .nc-file-row { position: relative; width: 414px; margin: 0 1px; color: #eaebef; cursor: pointer; outline: 0; }
+.nc-overlay .nc-directory-table .nc-file-row:hover { background: rgb(255 255 255 / 4%); }
+.nc-overlay .nc-directory-table .nc-file-row.selected { background: #2e2e35; box-shadow: inset 0 0 0 1.5px #8881ea; }
+.nc-overlay .nc-directory-table .nc-file-row > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.nc-overlay .nc-directory-table .nc-file-row > span:nth-child(3) { display: flex; align-items: center; gap: 4px; }
+.nc-overlay .nc-directory-table .nc-file-row img { width: 16px; height: 16px; flex: none; opacity: .6; }
+.nc-overlay .nc-directory-table .nc-file-row > span:last-child { color: #8a8c96; }
+.nc-overlay .nc-directory-table .nc-empty { height: 240px; }
+.nc-overlay .nc-directory-summary { width: 416px; height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 13px; background: #2c2c35; font-size: 14px; }
+.nc-overlay .nc-directory-summary label { display: flex; align-items: center; gap: 8px; }
+.nc-overlay .nc-directory-summary > span { color: #8a8c96; }
+.nc-overlay .nc-camera-base-section,
+.nc-overlay .nc-camera-imaging-section,
+.nc-overlay .nc-camera-transform-section { width: 448px; display: grid; grid-template-columns: 84px 316px; gap: 16px; padding: 16px; border-bottom: 1px solid rgb(255 255 255 / 13%); }
+.nc-overlay .nc-camera-base-section { min-height: 268px; }
+.nc-overlay .nc-camera-imaging-section { min-height: 140px; }
+.nc-overlay .nc-camera-transform-section { height: 72px; align-items: center; }
+.nc-overlay .nc-camera-fields { display: flex; flex-direction: column; gap: 16px; }
+.nc-overlay .nc-camera-fields > label { height: 68px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.nc-overlay .nc-camera-fields .design-select-trigger { width: 316px; flex: none; border-radius: 8px; }
+.nc-overlay .nc-camera-select-wrap { position: relative; width: 316px; height: 40px; }
+.nc-overlay .nc-camera-select-wrap > img { position: absolute; z-index: 1; left: 12px; top: 12px; width: 16px; height: 16px; opacity: .5; pointer-events: none; }
+.nc-overlay .nc-camera-select-wrap .nc-camera-select-trigger { padding-left: 40px; }
+.nc-overlay .nc-camera-imaging { display: flex; flex-direction: column; gap: 12px; }
+.nc-overlay .nc-camera-toggle { height: 20px; display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.nc-overlay .nc-camera-toggle > button { position: relative; width: 36px; height: 20px; padding: 2px; border: 0; border-radius: 20px; background: #52555e; cursor: pointer; }
+.nc-overlay .nc-camera-toggle > button i { position: absolute; left: 2px; top: 2.5px; width: 15px; height: 15px; border-radius: 50%; background: #fff; }
+.nc-overlay .nc-camera-toggle > button.on { background: #8881ea; }
+.nc-overlay .nc-camera-toggle > button.on i { left: 19px; }
+.nc-overlay .nc-camera-imaging > input { width: 316px; height: 40px; flex: none; }
+.nc-overlay .nc-transform-actions { width: 264px; height: 40px; display: flex; gap: 16px; }
+.nc-overlay .nc-transform-actions button { width: 40px; height: 40px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 8px; background: #2c2c35; color: #eaebef; cursor: pointer; }
+.nc-overlay .nc-transform-actions button img { width: 20px; height: 20px; object-fit: contain; }
+.nc-overlay .nc-transform-actions button.active { box-shadow: inset 0 0 0 1px #8881ea; background: #35334f; color: #a299ef; }
+.nc-overlay .nc-camera-execution { order: -1; height: 32px; display: flex; align-items: center; gap: 12px; color: #8a8c96; font-size: 14px; }
+.nc-overlay .nc-camera-execution::after { content: ''; order: 1; width: 1px; height: 24px; margin: 0 4px; background: rgb(255 255 255 / 16%); }
+.nc-overlay .nc-camera-execution > button { order: 0; }
+.nc-overlay .nc-camera-execution > i { order: 2; width: 10px; height: 10px; border-radius: 50%; background: #00ffa6; box-shadow: 0 0 8px rgb(0 255 166 / 60%); }
+.nc-overlay .nc-camera-execution > b { order: 3; color: #00ffa6; font-weight: 400; }
+.nc-overlay .nc-camera-execution > span { order: 4; }
+.nc-overlay .is-capture-dialog .nc-feedback { order: 0; }
+
+@media (max-width: 1180px), (max-height: 760px) {
+  .nc-overlay .nc-dialog.is-capture-dialog { width: calc(100vw - 32px); height: calc(100vh - 32px); }
+  .nc-overlay .is-capture-dialog .nc-settings { flex-basis: 448px; overflow: auto; }
+}
 
 /* MasterGo 65:81358：推理显示设置区 448×296。 */
 .nc-overlay .nc-display-settings { width: 448px; height: 296px; margin-left: -16px; overflow: hidden; color: #eaebef; }
