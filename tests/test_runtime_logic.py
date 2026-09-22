@@ -238,6 +238,23 @@ class RuntimeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(cam._ipv4_from_mvs(0xC0A80164), '192.168.1.100')
         self.assertEqual(cam._ipv4_from_mvs(0), '')
 
+    def test_mvs_yuv422_yuyv_frame_is_converted_to_bgr(self):
+        yuyv = np.array([
+            16, 128, 235, 128,
+            16, 128, 235, 128,
+        ], dtype=np.uint8)
+
+        try:
+            frame = cam._decode_frame(yuyv, 2, 2, 0x02100032)
+        except RuntimeError as exc:
+            self.fail(str(exc))
+
+        expected = np.array([
+            [[0, 0, 0], [255, 255, 255]],
+            [[0, 0, 0], [255, 255, 255]],
+        ], dtype=np.uint8)
+        np.testing.assert_array_equal(frame, expected)
+
     async def test_plc_real_tcp_echo_and_exception(self):
         requests=[]
         async def handle(reader,writer):
