@@ -15,6 +15,7 @@ from typing import Any
 import cv2
 import numpy as np
 
+from .. import imaging
 from ..config import RESULTS_DIR, ROOT_DIR, AUTH_TOKEN
 from ..db import connect, now_iso
 from ..events import event_hub
@@ -467,7 +468,7 @@ class WorkflowManager:
                 path = ROOT_DIR / path
             if not path.exists():
                 raise RuntimeError(f"指定图像不存在：{path}")
-            image = cv2.imread(str(path))
+            image = imaging.imread(path)
             if image is None:
                 raise RuntimeError(f"图像读取失败：{path}")
         elif source == "dir":
@@ -490,7 +491,7 @@ class WorkflowManager:
             path = Path(files[index])
             if not path.is_absolute():
                 path = ROOT_DIR / path
-            image = cv2.imread(str(path))
+            image = imaging.imread(path)
             if image is None:
                 raise RuntimeError(f"图像读取失败：{path}")
         elif source == "camera":
@@ -661,7 +662,7 @@ class WorkflowManager:
             return image
         payload = session.context.get(ref)
         if isinstance(payload, dict) and payload.get("path"):
-            image = cv2.imread(str(payload["path"]))
+            image = imaging.imread(payload["path"])
             if image is not None:
                 session.objects[ref] = image
                 return image
@@ -808,7 +809,7 @@ def _save_capture_image(run_id: str, node_id: str, image: np.ndarray) -> Path:
 
     FRAMES_DIR.mkdir(parents=True, exist_ok=True)
     target = FRAMES_DIR / f"{run_id}_{node_id}.jpg"
-    if not cv2.imwrite(str(target), image):
+    if not imaging.imwrite(target, image):
         raise RuntimeError("采集图像保存失败")
     return target
 
