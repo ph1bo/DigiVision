@@ -15,6 +15,7 @@ import cv2
 import numpy as np
 
 from ..config import FRAMES_DIR, MVS_IMPORT_DIR
+from .. import imaging
 
 
 PIXEL_TYPE_MONO8 = 0x01080001
@@ -378,7 +379,7 @@ class CameraService:
     def save_latest_frame(self, camera_id: str, frame: np.ndarray) -> Path:
         FRAMES_DIR.mkdir(parents=True, exist_ok=True)
         path = FRAMES_DIR / f"{camera_id}.jpg"
-        ok = cv2.imwrite(str(path), frame)
+        ok = imaging.imwrite(path, frame)
         if not ok:
             raise RuntimeError("相机帧保存失败")
         self._last_frame_paths[camera_id] = path

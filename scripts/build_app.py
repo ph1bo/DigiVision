@@ -17,6 +17,37 @@ def run(*args: str) -> None:
     subprocess.run(args, cwd=ROOT, check=True)
 
 
+def ensure_webview2_loader() -> None:
+    """确保 src-tauri/resources/WebView2Loader.dll 存在。
+
+    webview2-com-sys 只在 msvc 目标下静态链接 WebView2Loader；gnu 目标
+    （MinGW-w64）会动态依赖 WebView2Loader.dll。tauri-build 只把它复制到
+    target/release/ 供本地运行，并不会放进 NSIS 安装包，于是装完后启动即报
+    “找不到 WebView2Loader.dll”。这里保证该文件在 resources/ 下，供
+    tauri.conf.json 的 bundle.resources 引用。
+    """
+    if not sys.platform.startswith("win"):
+        return
+    resource = TAURI / "resources" / "WebView2Loader.dll"
+    if resource.exists():
+        return
+    candidates = [TAURI / "target" / "release" / "WebView2Loader.dll"]
+    cargo_home = Path(os.environ.get("CARGO_HOME") or Path.home() / ".cargo")
+    registry = cargo_home / "registry" / "src"
+    if registry.is_dir():
+        candidates.extend(sorted(registry.glob("*/webview2-com-sys-*/x64/WebView2Loader.dll")))
+    for candidate in candidates:
+        if candidate.is_file():
+            resource.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(candidate, resource)
+            return
+    raise SystemExit(
+        "找不到 WebView2Loader.dll。请先执行一次 cargo build --release，"
+        "或手动把 webview2-com-sys 里的 x64/WebView2Loader.dll 复制到 "
+        f"{resource}。"
+    )
+
+
 def bundle_targets(platform: str | None = None) -> str:
     target_platform = platform or sys.platform
     if target_platform == "darwin":
@@ -52,6 +83,7 @@ def main() -> None:
         if not npm:
             raise SystemExit("构建需要 npm。")
         # 后端已经构建，不重复执行 beforeBuildCommand 的后端步骤。
+        ensure_webview2_loader()
         targets = bundle_targets(sys.platform)
         build_targets = "app" if sys.platform == "darwin" else targets
         run(npm, "exec", "tauri", "build", "--", "--config",

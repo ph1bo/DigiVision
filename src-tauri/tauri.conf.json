@@ -48,7 +48,8 @@
     "targets": "all",
     "icon": [],
     "resources": {
-      "resources/digivision-backend/": "backend/"
+      "resources/digivision-backend/": "backend/",
+      "resources/WebView2Loader.dll": "WebView2Loader.dll"
     }
   }
 }
