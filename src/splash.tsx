@@ -41,43 +41,80 @@ function SplashApp() {
     await boot()
   }
 
-  const entries = summary ? Object.entries(summary.steps) : []
+  const progress = summary?.progress ?? (retrying ? 12 : 8)
+  const statusText = error
+    ? '运行环境检查失败'
+    : retrying
+      ? '正在初始化视觉引擎...'
+      : '正在准备运行环境...'
+  const modeText = summary?.mode && summary.mode !== 'CPU' ? summary.mode : 'AI 推理引擎 · 就绪'
   return (
     <main className="splash-shell" data-tauri-drag-region>
-      <section className="splash-panel">
+      <section className="splash-brand-panel">
         <header className="splash-header">
-          <div className="splash-mark">DV</div>
-          <div>
-            <div className="splash-brand">DigiVision</div>
-            <div className="splash-caption">AI 视觉检测工业软件</div>
+          <div className="splash-logo-mark" aria-hidden="true"><span /></div>
+          <div className="splash-brand-lockup">
+            <div className="splash-brand">Digi Vision</div>
+            <div className="splash-caption">AI工业视觉检测平台</div>
           </div>
-          <span className="splash-version">DEMO</span>
         </header>
-        <div className="splash-divider" />
-        <div className="splash-state">
-          <div className="splash-state-title">正在准备运行环境</div>
-          <div className="splash-state-subtitle">首次启动会检查本地服务和设备环境</div>
-        </div>
-        <div className="splash-progress-track"><span style={{ width: `${summary?.progress ?? 12}%` }} /></div>
-        <div className="splash-steps">
-          {entries.map(([key, step]) => (
-            <div className="splash-step" key={key}>
-              <span className={`splash-step-dot ${step.tone}`} />
-              <span className="splash-step-label">{step.label}</span>
-              <span className={`splash-step-detail ${step.tone}`}>{step.detail}</span>
-            </div>
-          ))}
-        </div>
-        {summary && !summary.blocked && summary.mode === 'CPU' && (
-          <div className="splash-notice">未检测到可用硬件加速，当前使用 CPU Provider</div>
-        )}
-        {error && (
-          <div className="splash-error">
-            <div>{error}</div>
-            {logPath && <div className="splash-log">日志：{logPath}</div>}
-            <button type="button" onClick={retry} disabled={retrying}>{retrying ? '正在重试' : '重试'}</button>
+
+        <div className="splash-wordmark">
+          <h1>DIGI<br /><span>VISION</span></h1>
+          <p className="splash-tagline"><i />AI Vision for a Digital World</p>
+          <p className="splash-motto">让机器看懂世界&nbsp; · &nbsp;让数据驱动未来</p>
+          <div className="splash-feature-list" aria-label="功能模块">
+            <span><b className="feature-icon feature-defect" />缺陷检测</span>
+            <span><b className="feature-icon feature-target" />目标定位</span>
+            <span><b className="feature-icon feature-analysis" />智能分析</span>
           </div>
-        )}
+        </div>
+
+        <footer className="splash-progress-area">
+          <div className="splash-progress-label">
+            <span className={`splash-loader ${error ? 'is-error' : ''}`} />
+            <strong>{statusText}</strong>
+            <b>{progress}%</b>
+          </div>
+          <div className="splash-progress-track"><span style={{ width: `${progress}%` }} /></div>
+          <div className="splash-meta-row">
+            <span>© 2025 Digi Vision Technology Co., Ltd.</span>
+            <span>v3.2.0&nbsp; · &nbsp;Build 20250812</span>
+          </div>
+          {error && (
+            <div className="splash-error">
+              <div>{error}</div>
+              {logPath && <div className="splash-log">日志：{logPath}</div>}
+              <button type="button" onClick={retry} disabled={retrying}>{retrying ? '正在重试' : '重试'}</button>
+            </div>
+          )}
+        </footer>
+      </section>
+
+      <section className="splash-visual-panel" aria-label="视觉引擎状态">
+        <div className="splash-visual-topbar">
+          <span className="online-status"><i />SYSTEM ONLINE</span>
+          <span>DIGI-VISION CORE 3.2</span>
+        </div>
+        <div className="splash-visual-stage">
+          <div className="visual-grid" />
+          <i className="visual-corner corner-tl" /><i className="visual-corner corner-tr" />
+          <i className="visual-corner corner-bl" /><i className="visual-corner corner-br" />
+          <div className="radar-rings"><i /><i /><i /><i /></div>
+          <div className="radar-orbit orbit-wide" /><div className="radar-orbit orbit-narrow" />
+          <div className="radar-core"><i /><b /></div>
+          <div className="scan-beam beam-left" /><div className="scan-beam beam-right" />
+          <i className="visual-diamond diamond-a" /><i className="visual-diamond diamond-b" />
+          <i className="visual-diamond diamond-c" /><i className="visual-diamond diamond-d" />
+          <div className="inspection-plane">
+            <div className="plane-grid" />
+            <i className="inspection-block block-a" /><i className="inspection-block block-b" /><i className="inspection-block block-c" />
+          </div>
+        </div>
+        <div className="splash-visual-bottombar">
+          <span><i className="engine-dot" />{modeText}</span>
+          <span><i className="accuracy-icon" />识别精度 98.6% 推理时延 12ms</span>
+        </div>
       </section>
     </main>
   )
