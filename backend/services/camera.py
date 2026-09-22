@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import os
 import sys
 import threading
 import math
@@ -52,6 +53,7 @@ class MvsRuntime:
         self._import_checked = False
         self._module: Any = None
         self._error = ""
+        self._dll_directory_handles: list[Any] = []
         self._handles: dict[str, Any] = {}
         self._lock = threading.RLock()
 
@@ -79,14 +81,57 @@ class MvsRuntime:
         paths.extend(candidates)
         return paths
 
+    def _candidate_runtime_paths(self) -> list[str]:
+        architecture = "Win64_x64" if sys.maxsize > 2**32 else "Win32_i86"
+        paths: list[str] = []
+        configured = os.environ.get("DIGIVISION_MVS_RUNTIME_DIR", "").strip()
+        if configured:
+            paths.append(configured)
+
+        common_roots = [
+            os.environ.get("CommonProgramFiles(x86)", ""),
+            os.environ.get("CommonProgramW6432", ""),
+            os.environ.get("CommonProgramFiles", ""),
+            r"C:\Program Files (x86)\Common Files",
+            r"C:\Program Files\Common Files",
+        ]
+        install_roots = [
+            os.environ.get("ProgramFiles(x86)", ""),
+            os.environ.get("ProgramW6432", ""),
+            os.environ.get("ProgramFiles", ""),
+            r"C:\Program Files (x86)",
+            r"C:\Program Files",
+        ]
+        paths.extend(str(Path(root) / "MVS" / "Runtime" / architecture) for root in common_roots if root)
+        paths.extend(str(Path(root) / "MVS" / "Runtime" / architecture) for root in install_roots if root)
+        return list(dict.fromkeys(paths))
+
+    def _prepare_windows_runtime(self) -> None:
+        if sys.platform != "win32":
+            return
+        for candidate in self._candidate_runtime_paths():
+            runtime_dir = Path(candidate)
+            if not (runtime_dir / "MvCameraControl.dll").is_file():
+                continue
+            runtime_path = str(runtime_dir)
+            entries = os.environ.get("PATH", "").split(os.pathsep)
+            if runtime_path not in entries:
+                current_path = os.environ.get("PATH", "")
+                os.environ["PATH"] = runtime_path + (os.pathsep + current_path if current_path else "")
+            add_dll_directory = getattr(os, "add_dll_directory", None)
+            if add_dll_directory is not None:
+                self._dll_directory_handles.append(add_dll_directory(runtime_path))
+            return
+
     def _load_module(self) -> None:
         if self._import_checked:
             return
         self._import_checked = True
-        for path in self._candidate_paths():
-            if path and Path(path).exists() and path not in sys.path:
-                sys.path.insert(0, path)
         try:
+            self._prepare_windows_runtime()
+            for path in self._candidate_paths():
+                if path and Path(path).exists() and path not in sys.path:
+                    sys.path.insert(0, path)
             self._module = importlib.import_module("MvCameraControl_class")
         except Exception as exc:  # MVS 未安装、位数不匹配或依赖缺失都会走这里
             self._error = str(exc)
