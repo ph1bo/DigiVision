@@ -9,6 +9,7 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
         "label": "main",
@@ -21,6 +22,7 @@
         "visible": false,
         "fullscreen": false,
         "decorations": false,
+        "transparent": true,
         "dragDropEnabled": false,
         "backgroundColor": "#31313b"
       },
@@ -28,11 +30,12 @@
         "label": "splashscreen",
         "title": "DigiVision",
         "url": "splash.html",
-        "width": 1180,
-        "height": 795,
+        "width": 1200,
+        "height": 820,
         "resizable": false,
         "fullscreen": false,
         "decorations": false,
+        "transparent": true,
         "center": true,
         "alwaysOnTop": true,
         "backgroundColor": "#18191C"
@@ -46,7 +49,14 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "icon": [],
+    "icon": [
+      "icons/32x32.png",
+      "icons/64x64.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
     "resources": {
       "resources/digivision-backend/": "backend/",
       "resources/WebView2Loader.dll": "WebView2Loader.dll"

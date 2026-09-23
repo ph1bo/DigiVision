@@ -21,6 +21,7 @@
   height: 100vh;
   min-height: 760px;
   background: var(--bg-root);
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1569,8 +1570,7 @@ button:disabled { opacity: .38; cursor: not-allowed !important; }
 
 .module-panel .module-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; padding: 0; }
 .module-panel .module-card {
-  --module-sep: rgba(255, 255, 255, .12);
-  position: relative;
+      position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1585,10 +1585,8 @@ button:disabled { opacity: .38; cursor: not-allowed !important; }
   cursor: pointer;
   overflow: visible;
 }
-.module-panel .module-card:nth-child(2n + 1) { border-right: 1px solid var(--module-sep); }
-.module-panel .module-card:nth-child(n + 3) { border-top: 1px solid var(--module-sep); }
-.module-panel .module-card:hover { background: transparent; border-color: var(--module-sep); }
-.module-panel .module-card.selected { background: transparent; border-color: var(--module-sep); }
+.module-panel .module-card:hover { background: transparent; border-color: transparent; }
+.module-panel .module-card.selected { background: transparent; border-color: transparent; }
 .module-panel .module-card.selected::after {
   content: "";
   position: absolute;

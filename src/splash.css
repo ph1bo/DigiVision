@@ -188,3 +188,52 @@ button { font: inherit; }
     linear-gradient(90deg, rgba(255, 255, 255, .24) 1px, transparent 1px);
   background-size: 22px 22px;
 }
+
+/* 最终覆盖：使用提供的 SVG/GIF 启动画面，不显示旧版 CSS 绘制的启动视觉。 */
+.splash-shell {
+  position: relative;
+  width: 1200px;
+  height: 820px;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #18191c;
+}
+.splash-background,
+.splash-animation {
+  position: absolute;
+  top: 0;
+  height: 820px;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+.splash-background { left: 0; width: 1200px; z-index: 0; }
+.splash-animation { left: 520px; width: 680px; z-index: 1; }
+.splash-brand-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+}
+.splash-header,
+.splash-wordmark,
+.splash-visual-panel { display: none !important; }
+.splash-progress-area {
+  position: absolute;
+  left: 40px;
+  bottom: 24px;
+  width: 440px;
+  min-height: 96px;
+  box-sizing: border-box;
+  padding: 8px 0 0;
+  background: #18191C;
+}
+.splash-meta-row { display: none; }
+
+/* 圆角窗口外的区域交给原生透明窗口处理。 */
+:root { background: transparent; }

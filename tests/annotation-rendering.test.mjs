@@ -54,7 +54,7 @@ test('Region 类别名称使用带背景的界面标签而不是 SVG 小字', ()
   assert.match(markup, />螺丝钉<\/span>/)
 })
 
-test('相邻 Region 标签在界面坐标中自动错开', () => {
+test('相邻 Region 标签保持原始位置并允许重叠', () => {
   const layout = overlayModule.exports.layoutRegionLabels
   assert.equal(typeof layout, 'function')
   const labels = layout([
@@ -63,27 +63,16 @@ test('相邻 Region 标签在界面坐标中自动错开', () => {
     { kind: 'rect', x: 116, y: 112, label: '螺丝钉' },
   ], { left: 0, top: 0, width: 500, height: 500 }, 1000, 1000)
   assert.equal(labels.length, 3)
-  for (let i = 0; i < labels.length; i += 1) {
-    for (let j = i + 1; j < labels.length; j += 1) {
-      const a = labels[i]
-      const b = labels[j]
-      const overlaps = a.left < b.left + b.width && a.left + a.width > b.left
-        && a.top < b.top + b.height && a.top + a.height > b.top
-      assert.equal(overlaps, false)
-    }
-  }
-})
-
-test('密集 Region 标签保持在自身框附近，不沿单一方向漂移', () => {
-  const layout = overlayModule.exports.layoutRegionLabels
-  const rows = Array.from({ length: 8 }, (_, index) => ({
-    kind: 'rect', x: 100 + index * 8, y: 100 + index * 6, label: '螺丝钉',
-  }))
-  const labels = layout(rows, { left: 0, top: 0, width: 500, height: 500 }, 1000, 1000)
-  labels.forEach((item, index) => {
-    const preferredTop = Math.max(0, Math.min((rows[index].y / 1000) * 500 - 20, 480))
-    assert.ok(Math.abs(item.top - preferredTop) <= 20, `标签 ${index} 偏离自身框过远`)
-  })
+  assert.deepEqual(labels.map(({ left, top }) => ({ left, top })), [
+    { left: 50, top: 30 },
+    { left: 54, top: 33 },
+    { left: 58, top: 36 },
+  ])
+  const overlaps = labels[0].left < labels[1].left + labels[1].width
+    && labels[0].left + labels[0].width > labels[1].left
+    && labels[0].top < labels[1].top + labels[1].height
+    && labels[0].top + labels[0].height > labels[1].top
+  assert.equal(overlaps, true)
 })
 
 test('用户配置的 OK 或 NG 文本不会生成系统状态徽标', () => {

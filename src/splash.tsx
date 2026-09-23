@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { backendLogPath, desktop, finishSplash, initializeRuntime, inspectRuntime, restartBackend } from './api'
-import { summarizeCapabilities, type SplashSummary } from './splash-logic'
+import { getSplashWaitMs, SPLASH_MESSAGES, summarizeCapabilities, type SplashSummary } from './splash-logic'
 import splashLogo from './assets/mastergo/splash-logo.svg'
+import splashBackground from './assets/splash/startup-background.svg'
+import splashAnimation from './assets/splash/startup-animation.gif'
 import './splash.css'
 
 function SplashApp() {
@@ -10,10 +12,13 @@ function SplashApp() {
   const [error, setError] = useState('')
   const [logPath, setLogPath] = useState('')
   const [retrying, setRetrying] = useState(false)
+  const [messageIndex, setMessageIndex] = useState(0)
 
   async function boot() {
+    const startedAt = Date.now()
     setRetrying(true)
     setError('')
+    setMessageIndex(0)
     try {
       await initializeRuntime()
       const capabilities = await inspectRuntime()
@@ -24,7 +29,7 @@ function SplashApp() {
         setLogPath(await backendLogPath())
         return
       }
-      await new Promise(resolve => window.setTimeout(resolve, 300))
+      await new Promise(resolve => window.setTimeout(resolve, getSplashWaitMs(Date.now() - startedAt)))
       await finishSplash()
     } catch (cause) {
       setSummary(null)
@@ -37,6 +42,14 @@ function SplashApp() {
 
   useEffect(() => { void boot() }, [])
 
+  useEffect(() => {
+    if (!retrying || error) return
+    const timer = window.setInterval(() => {
+      setMessageIndex(index => (index + 1) % SPLASH_MESSAGES.length)
+    }, 320)
+    return () => window.clearInterval(timer)
+  }, [retrying, error])
+
   async function retry() {
     await restartBackend()
     await boot()
@@ -46,11 +59,13 @@ function SplashApp() {
   const statusText = error
     ? '运行环境检查失败'
     : retrying
-      ? '正在初始化视觉引擎...'
+      ? SPLASH_MESSAGES[messageIndex]
       : '正在准备运行环境...'
   const modeText = summary?.mode && summary.mode !== 'CPU' ? summary.mode : 'AI 推理引擎 · 就绪'
   return (
     <main className="splash-shell" data-tauri-drag-region>
+      <img className="splash-background" src={splashBackground} alt="" aria-hidden="true" />
+      <img className="splash-animation" src={splashAnimation} alt="" aria-hidden="true" />
       <section className="splash-brand-panel">
         <header className="splash-header">
           <img className="splash-logo" src={splashLogo} alt="" />

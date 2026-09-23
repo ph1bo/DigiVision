@@ -31,6 +31,30 @@ export interface SplashSummary {
   }
 }
 
+export const SPLASH_MIN_DURATION_MS = 6000
+
+export const SPLASH_MESSAGES = [
+  '正在启动服务…',
+  '正在读取运行配置…',
+  '正在初始化数据环境…',
+  '正在准备视觉引擎…',
+  '正在初始化推理引擎…',
+  '正在加载推理组件…',
+  '正在启动视觉引擎…',
+  '正在检测计算能力…',
+  '正在校验模型运行环境…',
+  '正在建立本地通信…',
+  '正在准备图像处理链…',
+  '正在加载视觉分析模块…',
+  '正在同步设备状态…',
+  '正在完成运行环境检查…',
+  '视觉引擎即将就绪…',
+]
+
+export function getSplashWaitMs(elapsedMs: number): number {
+  return Math.max(0, SPLASH_MIN_DURATION_MS - elapsedMs)
+}
+
 export function summarizeCapabilities(capabilities: RuntimeCapabilities): SplashSummary {
   const databaseReady = capabilities.database?.ready === true
   const inference = capabilities.inference ?? { cpuAvailable: false }

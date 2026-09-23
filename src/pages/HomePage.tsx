@@ -597,7 +597,7 @@ export function HomePage() {
             if (!flow) return
             const next = compileWorkflow(nodes.map(node => node.id === selectedNode.id ? { ...node, data: { ...node.data, params, label } } : node))
             const updated = await persistFlow(flow, next)
-            setFlow(updated); setNodes(next); pushLog('success', '节点', '节点配置已保存到 SQLite')
+            setFlow(updated); setNodes(next); pushLog('success', '节点', '节点配置已保存')
           }}
           onDebug={async params => {
             await saveFlow()

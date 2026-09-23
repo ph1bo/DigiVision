@@ -2,7 +2,7 @@
  * 高保稿导出的图标资源（2x PNG，直接来自 MasterGo「导出图片」）。
  * 名称沿用导出文件名：toolbar = 顶部工具栏，module = 模块卡插画。
  */
-import logo from './assets/icons/logo.png'
+import logo from './assets/icons/digivision-logo.svg'
 import toolbarCamera from './assets/icons/toolbar/icon-camera.png'
 import toolbarDivider from './assets/icons/toolbar/divider.png'
 import toolbarHelp from './assets/icons/toolbar/icon-help.png'
@@ -60,5 +60,5 @@ export const iconSizes = {
   module: { width: 82, height: 53 },
   flow: { width: 16, height: 16 },
   flowCollapse: { width: 12, height: 12 },
-  logo: { width: 22, height: 21 },
+  logo: { width: 22, height: 22 },
 }
