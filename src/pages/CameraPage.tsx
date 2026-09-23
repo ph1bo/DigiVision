@@ -95,7 +95,9 @@ export function CameraPage() {
 
   const grabCamera = useCallback(async (camera: Camera) => {
     const result = await api.post<{ imageUrl: string; width: number; height: number }>(`/cameras/${camera.id}/grab`)
-    setPreviews((current) => ({ ...current, [camera.id]: imageUrl(result.imageUrl) }))
+    // 预览帧文件名固定（{camera_id}.jpg），必须带时间戳破缓存，
+    // 否则断开重连后浏览器会复用旧图，看起来"图像不是最新的"。
+    setPreviews((current) => ({ ...current, [camera.id]: `${imageUrl(result.imageUrl)}${imageUrl(result.imageUrl).includes('?') ? '&' : '?'}_t=${Date.now()}` }))
     return result
   }, [])
 

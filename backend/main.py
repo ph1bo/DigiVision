@@ -259,7 +259,12 @@ async def get_frame(filename: str) -> FileResponse:
     path = (FRAMES_DIR / filename).resolve()
     if FRAMES_DIR.resolve() not in path.parents or not path.exists():
         raise HTTPException(status_code=404, detail="图像不存在")
-    return FileResponse(path)
+    # 相机预览帧的文件名是固定的（{camera_id}.jpg），内容却每次都在变。
+    # 不加 no-store 的话浏览器会直接复用缓存，导致"断开重连后显示的还是旧图"。
+    return FileResponse(
+        path,
+        headers={"Cache-Control": "no-store, no-cache, must-revalidate", "Pragma": "no-cache"},
+    )
 
 
 @app.get("/api/v1/models")
